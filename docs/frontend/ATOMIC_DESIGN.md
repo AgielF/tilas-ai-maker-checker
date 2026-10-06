@@ -1,4 +1,4 @@
-# Atomic Design — Timbang Frontend
+# Atomic Design — Tilas Frontend
 
 Metodologi berdasarkan [Brad Frost Atomic Design](https://atomicdesign.bradfrost.com/).
 Sistem ini memastikan komponen reusable, testable, dan tidak punya dependensi siklik.
@@ -16,7 +16,7 @@ Sistem ini memastikan komponen reusable, testable, dan tidak punya dependensi si
 
 ## 2. Lima Level
 
-| Level | Definisi | Contoh untuk Timbang | Folder |
+| Level | Definisi | Contoh untuk Tilas | Folder |
 |---|---|---|---|
 | **atoms** | Elemen terkecil, stateless, tanpa logika bisnis. Output murni dari props. | `Button`, `Badge`, `Input`, `Label`, `Icon`, `Spinner`, `Skeleton`, `Divider` | `src/components/atoms/` |
 | **molecules** | Gabungan atom, satu tanggung jawab UI, boleh local state. | `FormField`, `SearchBar`, `SeverityBadge`, `StatCell`, `NavItem`, `EmptyState`, `ErrorBanner`, `ComingSoonBadge` | `src/components/molecules/` |

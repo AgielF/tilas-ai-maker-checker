@@ -1,4 +1,4 @@
-# Performance — Timbang Frontend
+# Performance — Tilas Frontend
 
 Panduan optimasi performa React untuk memastikan aplikasi tetap responsif,
 bebas memory leak, dan lolos audit Lighthouse sebelum submission.

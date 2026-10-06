@@ -64,7 +64,7 @@ export default function App() {
           } />
           <Route path="/about" element={
             <ComingSoonPage
-              title="About Timbang"
+              title="About Tilas"
               description="Dokumentasi arsitektur, tech stack, dan roadmap."
               eta="Est. 3 hari"
             />

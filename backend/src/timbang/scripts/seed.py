@@ -190,7 +190,7 @@ async def main(db_url: str | None = None) -> None:
     await engine.dispose()
 
     print("=" * 50)
-    print("  Timbang — Seed Script")
+    print("  Tilas — Seed Script")
     print("=" * 50)
     print(f"  Vendors       : {total_vendors:>4}  (+{vendors_created} new)")
     print(f"  Price Quotes  : {total_quotes:>4}  (+{quotes_created} new)")

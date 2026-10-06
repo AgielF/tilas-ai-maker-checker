@@ -1,9 +1,9 @@
-# AGENTS.md — Timbang
+# AGENTS.md — Tilas
 
 Panduan utama untuk AI agent yang bekerja di repo ini.
 
 ## Konteks Proyek
-Timbang adalah AI Maker–Checker untuk deteksi fraud pengadaan di perusahaan menengah Indonesia tanpa ERP. Target submission: IBM SkillsBuild University Education National Hackathon 2026.
+Tilas adalah AI Maker–Checker untuk deteksi fraud pengadaan di perusahaan menengah Indonesia tanpa ERP. Target submission: IBM SkillsBuild University Education National Hackathon 2026.
 
 ## Prinsip Non-Negotiable
 1. **Dependency Rule** — arah dependensi: `router → service → repository → model`. Tidak boleh dibalik.

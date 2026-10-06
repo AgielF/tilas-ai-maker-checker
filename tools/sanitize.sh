@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# tools/sanitize.sh — Timbang pre-commit security & hygiene gate
+# tools/sanitize.sh — Tilas pre-commit security & hygiene gate
 # Jalankan sebelum `git commit`. Exit 0 = aman, exit 1 = ada temuan.
 set -uo pipefail
 
@@ -17,7 +17,7 @@ SCAN_EXCLUDE=(
   ":(exclude)*package-lock.json"
 )
 
-echo "==> Timbang sanitize.sh — pre-commit gate"
+echo "==> Tilas sanitize.sh — pre-commit gate"
 echo
 
 # ---------- 1. File terlarang di staging ----------

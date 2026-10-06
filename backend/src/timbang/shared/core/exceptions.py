@@ -1,4 +1,4 @@
-"""Domain exceptions for Timbang.
+"""Domain exceptions for Tilas.
 
 These are raised in the service layer and mapped to HTTP status codes
 in the router layer — never let stack traces leak to production responses

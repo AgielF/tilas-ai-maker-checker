@@ -1,4 +1,4 @@
-# Inventaris Komponen — Timbang Frontend
+# Inventaris Komponen — Tilas Frontend
 
 Dokumen ini mendaftar seluruh komponen UI yang direncanakan, diorganisir per level atomic design.
 Setiap komponen tinggal dalam satu file `.jsx`, di-export sebagai `default export`.

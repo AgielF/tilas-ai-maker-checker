@@ -1,4 +1,4 @@
-# Security — Timbang
+# Security — Tilas
 
 ## Aturan Wajib
 - ❌ JANGAN commit `.env`, `.bob/`, `mcp.json`, API keys, `*.key`.
@@ -20,7 +20,7 @@ mcp.json
 .langflow/
 ```
 
-## OWASP API Security Top 10 (2023) — Kontrol di Timbang
+## OWASP API Security Top 10 (2023) — Kontrol di Tilas
 
 | Risiko | Kontrol |
 |---|---|

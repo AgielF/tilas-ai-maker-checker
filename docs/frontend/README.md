@@ -1,6 +1,6 @@
-# Dokumentasi Frontend — Timbang
+# Dokumentasi Frontend — Tilas
 
-Indeks dokumentasi frontend untuk proyek Timbang. Semua file berada di folder `docs/frontend/`.
+Indeks dokumentasi frontend untuk proyek Tilas. Semua file berada di folder `docs/frontend/`.
 
 ## Stack
 

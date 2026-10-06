@@ -18,10 +18,10 @@ function NavBar({ activePath = '' }) {
         <Link
           to="/"
           className="flex items-center gap-2 text-navy no-underline"
-          aria-label="Timbang — home"
+          aria-label="Tilas — home"
         >
           <span className="text-xl font-black tracking-tight text-navy leading-none">
-            Timbang
+            Tilas
           </span>
           <span
             className="w-2 h-2 rounded-full bg-electric flex-shrink-0"

@@ -1,4 +1,4 @@
-# Hero Interaction — Timbang
+# Hero Interaction — Tilas
 
 Dokumen ini menjelaskan interaksi bilingual hero dengan efek spotlight berbasis mouse
 pada `LandingPage`. Komponen bernama `HeroBilingual` dan berada di level **organism**.
@@ -39,7 +39,7 @@ elemen overlay. Spotlight mengikuti posisi mouse melalui CSS mask.
 <section
   ref={heroRef}
   className="hero relative overflow-hidden bg-navy-950 min-h-screen"
-  aria-label="Hero section — Timbang"
+  aria-label="Hero section — Tilas"
 >
   {/* Layer 1 — teks Indonesia (selalu terlihat, base layer) */}
   <div className="hero__base absolute inset-0 flex items-center justify-center">

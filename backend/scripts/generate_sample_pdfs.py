@@ -124,7 +124,7 @@ def generate_pdf(filename: str, title: str, lines: list[str]) -> Path:
         topMargin=22 * mm,
         bottomMargin=22 * mm,
         title=title,
-        author="Timbang Checker Sample Documents",
+        author="Tilas Checker Sample Documents",
     )
     story = [Paragraph(title, title_style)]
     for line in lines:

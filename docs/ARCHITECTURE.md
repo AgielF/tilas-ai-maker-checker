@@ -1,4 +1,4 @@
-# Arsitektur Timbang
+# Arsitektur Tilas
 
 ## Gaya Arsitektur
 - **Clean Architecture + Modular Monolith.**

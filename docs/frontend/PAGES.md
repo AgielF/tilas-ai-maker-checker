@@ -1,6 +1,6 @@
-# Pages — Timbang
+# Pages — Tilas
 
-Peta halaman, route, dan spesifikasi konten untuk setiap page di frontend Timbang.
+Peta halaman, route, dan spesifikasi konten untuk setiap page di frontend Tilas.
 
 ---
 
@@ -209,7 +209,7 @@ Daftar semua temuan fraud / anomali.
 
 ## About (`/about`) — Opsional
 
-Informasi tim, teknologi, dan konteks proyek Timbang.
+Informasi tim, teknologi, dan konteks proyek Tilas.
 
 ---
 

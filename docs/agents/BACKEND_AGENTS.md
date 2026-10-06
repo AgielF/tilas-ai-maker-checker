@@ -1,4 +1,4 @@
-# Backend Agents — Timbang
+# Backend Agents — Tilas
 
 Panduan untuk AI agent yang menulis kode di `backend/`.
 

@@ -1,1 +1,1 @@
-"""Timbang — AI Maker–Checker untuk Purchasing."""
+"""Tilas — AI Maker–Checker untuk Purchasing."""

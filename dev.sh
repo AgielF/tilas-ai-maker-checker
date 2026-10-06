@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Timbang dev launcher — venv python langsung, tanpa activate
+# Tilas dev launcher — venv python langsung, tanpa activate
 
 ROOT="/home/agiel-fernanda/hackaton-ibm-hackactive8/project"
 VENV="$ROOT/.venv"

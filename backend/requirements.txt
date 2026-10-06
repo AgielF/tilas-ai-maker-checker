@@ -53,7 +53,7 @@ slowapi==0.1.10
 SQLAlchemy==2.1.1
 starlette==1.7.0
 structlog==26.1.0
--e git+https://github.com/AgielF/Timbang-Agen-AI-Maker-Checker-untuk-Purchasing-.git@b2acfafa5113ced5f83fdcc19e44d28142d92fe5#egg=timbang&subdirectory=backend
+-e git+https://github.com/AgielF/tilas-ai-maker-checker.git@main#egg=timbang&subdirectory=backend
 typing-inspection==0.4.4
 typing_extensions==4.16.0
 uvicorn==0.54.0

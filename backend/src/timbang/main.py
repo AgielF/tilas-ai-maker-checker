@@ -1,4 +1,4 @@
-"""FastAPI application factory for Timbang.
+"""FastAPI application factory for Tilas.
 
 Entry point: `uvicorn timbang.main:app --reload` (from backend/).
 """

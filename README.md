@@ -1,6 +1,6 @@
-# Timbang — AI Maker-Checker untuk Pengadaan
+# Tilas — Jejak Pengadaan yang Tak Hilang
 
-> AI yang tidak halusinasi. Deteksi fraud pengadaan sebelum pembayaran.
+> Jejak yang tak pernah hilang.
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688.svg)](https://fastapi.tiangolo.com/)
@@ -9,7 +9,7 @@
 [![Tests](https://img.shields.io/badge/tests-72%2B-brightgreen.svg)](#testing)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**Timbang** (Bahasa Indonesia: *menimbang*) adalah sistem AI Maker–Checker untuk deteksi fraud pengadaan di perusahaan menengah Indonesia tanpa ERP. Target submission: IBM SkillsBuild University Education National Hackathon 2026.
+**Tilas** (Jawa: *jejak, bekas*) adalah sistem AI Maker–Checker untuk deteksi fraud pengadaan di perusahaan menengah Indonesia tanpa ERP. Target submission: IBM SkillsBuild University Education National Hackathon 2026.
 
 ---
 
@@ -50,7 +50,7 @@ Tim purchasing mengelola quote vendor, PO, goods receipt, dan invoice lewat spre
 
 ## Solution
 
-Timbang mengotomasi kerja auditor pengadaan **sebelum pembayaran disetujui**, dengan keputusan akhir tetap di manusia.
+Tilas mengotomasi kerja auditor pengadaan **sebelum pembayaran disetujui**, dengan keputusan akhir tetap di manusia.
 
 - **Maker Agent** — analisis penawaran + cross-validate harga pasar (Serper / marketplace)
 - **Checker Agent** — 4-way matching (PO / GR / Invoice / Faktur Pajak) + SOP + citation guard
@@ -154,7 +154,7 @@ Halaman lain: landing `/`, Coming Soon untuk Dashboard, Vendor Management, Findi
 
 ## Database Schema
 
-Timbang menggunakan **SQLAlchemy 2.0 async** dengan dukungan SQLite (dev) 
+Tilas menggunakan **SQLAlchemy 2.0 async** dengan dukungan SQLite (dev) 
 dan PostgreSQL (production). Database menyimpan vendor master, riwayat harga, 
 audit findings, dan keputusan reviewer.
 
@@ -425,8 +425,8 @@ Untuk production (PostgreSQL), gunakan Alembic untuk versioned migration.
 ### Setup
 
 ```bash
-git clone https://github.com/AgielF/Timbang-Agen-AI-Maker-Checker-untuk-Purchasing-.git
-cd Timbang-Agen-AI-Maker-Checker-untuk-Purchasing-
+git clone https://github.com/AgielF/tilas-ai-maker-checker.git
+cd tilas-ai-maker-checker
 
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e "backend/[dev]"

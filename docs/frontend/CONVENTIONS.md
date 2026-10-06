@@ -1,4 +1,4 @@
-# Konvensi Frontend — Timbang
+# Konvensi Frontend — Tilas
 
 Panduan konsistensi kode untuk semua kontributor (termasuk AI agent).
 Baca dokumen ini sebelum membuat atau memodifikasi file apapun di `frontend/`.

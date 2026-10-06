@@ -1,4 +1,4 @@
-# API Contract — Timbang Frontend
+# API Contract — Tilas Frontend
 
 Dokumen ini mendefinisikan kontrak antara frontend dan backend FastAPI.
 Semua panggilan API wajib melalui `src/lib/api.js` dan di-consume via hook di `src/hooks/useApi.js`.
@@ -32,7 +32,7 @@ Digunakan untuk cek konektivitas backend saat aplikasi dimuat.
 
 **Response 200:**
 ```json
-{ "status": "ok", "app": "Timbang" }
+{ "status": "ok", "app": "Tilas" }
 ```
 
 ---

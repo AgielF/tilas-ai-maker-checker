@@ -1,6 +1,6 @@
-# Design System — Timbang
+# Design System — Tilas
 
-Panduan visual dan token desain untuk seluruh komponen frontend Timbang.
+Panduan visual dan token desain untuk seluruh komponen frontend Tilas.
 Semua keputusan estetik bersumber dari dokumen ini.
 
 ---

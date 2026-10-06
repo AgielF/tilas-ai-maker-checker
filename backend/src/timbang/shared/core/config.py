@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     )
 
     # App
-    app_name: str = "Timbang"
+    app_name: str = "Tilas"
     app_env: Literal["dev", "staging", "prod"] = "dev"
     debug: bool = False
 
