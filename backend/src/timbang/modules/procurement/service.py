@@ -15,13 +15,16 @@ import statistics
 import time
 import uuid
 from decimal import Decimal
+from pathlib import Path
 
 import httpx
 import structlog
 from fastapi import UploadFile
 
+from timbang.modules.procurement.bon_parser import parse_bon_excel
 from timbang.modules.procurement.repository import PriceQuoteRepository, VendorRepository
 from timbang.modules.procurement.schemas import (
+    ParsedBon,
     PriceQuoteCreate,
     PriceQuoteRead,
     PriceValidationResult,
@@ -132,7 +135,7 @@ def _normalize_num(v: object) -> float | None:
 
 def _normalize_sumber(sumber: object) -> list[str]:
     """Keep only valid URL strings from a sumber field.
-    
+
     Handles: list of URLs, single URL string, sentinel string, None.
     """
     if sumber is None:
@@ -210,9 +213,7 @@ def _apply_math_check(response: RecommendationResponse) -> RecommendationRespons
         return response
 
     calculated = sum(
-        item.total_price_vendor
-        for item in response.items
-        if item.total_price_vendor is not None
+        item.total_price_vendor for item in response.items if item.total_price_vendor is not None
     )
 
     k = response.kesimpulan
@@ -524,7 +525,10 @@ class ProcurementService:
                 if item_name and item_name.strip():
                     user_instruksi = f"Ekstrak dan analisis khusus item: {item_name.strip()}"
                 else:
-                    user_instruksi = "Ekstrak dan analisis SEMUA item yang ada dalam dokumen penawaran vendor ini."
+                    user_instruksi = (
+                        "Ekstrak dan analisis SEMUA item yang ada "
+                        "dalam dokumen penawaran vendor ini."
+                    )
 
                 # 5. Run flow with file_path tweak
                 run_url = f"{settings.langflow_base_url}/api/v1/run/{flow_id}"
@@ -580,3 +584,29 @@ class ProcurementService:
                 )
 
         return RecommendationResponse(raw_text=text, reason=text)
+
+    # ── Bon Permintaan Parser ───────────────────────────────────────────────────
+
+    async def parse_bon_from_file(self, file: UploadFile) -> list[ParsedBon]:
+        """Parse Bon Permintaan Excel → list of ParsedBon.
+
+        Validates file extension and size, then delegates to bon_parser.
+        Raises ValidationError on bad input.
+        """
+        ext = Path(file.filename or "").suffix.lower()
+        if ext not in {".xlsx", ".xls"}:
+            raise ValidationError(
+                f"Format {ext} tidak didukung untuk Bon. " f"Gunakan Excel (.xlsx, .xls)."
+            )
+
+        content = await file.read()
+        max_bytes = self._MAX_FILE_SIZE_MB * 1024 * 1024
+        if len(content) > max_bytes:
+            raise ValidationError(
+                f"File terlalu besar: {len(content) / (1024 * 1024):.1f} MB. "
+                f"Maks {self._MAX_FILE_SIZE_MB} MB."
+            )
+        if len(content) < 4:
+            raise ValidationError("File kosong atau tidak valid")
+
+        return parse_bon_excel(content)

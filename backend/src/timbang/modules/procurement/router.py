@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from timbang.modules.procurement.repository import PriceQuoteRepository, VendorRepository
 from timbang.modules.procurement.schemas import (
+    ParsedBon,
     PriceQuoteCreate,
     PriceQuoteRead,
     PriceValidationResult,
@@ -133,5 +134,19 @@ async def get_recommendation(
         # Load quotes first so the service can include them in the Langflow prompt
         quotes = await service._load_quotes_for_item(item_name)
         return await service.get_recommendation(item_name=item_name, quotes=quotes or None)
+    except DomainError as exc:
+        raise _map_exception(exc) from exc
+
+
+@router.post("/bons/parse", response_model=list[ParsedBon])
+@limiter.limit("10/minute")
+async def parse_bon_endpoint(
+    request: Request,
+    file: UploadFile = File(...),
+    service: ProcurementService = Depends(_build_service),
+) -> list[ParsedBon]:
+    """Parse Bon Permintaan (Excel) → structured JSON."""
+    try:
+        return await service.parse_bon_from_file(file)
     except DomainError as exc:
         raise _map_exception(exc) from exc

@@ -11,7 +11,7 @@ import uuid
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from timbang.modules.procurement.models import PriceQuote, Vendor
+from timbang.modules.procurement.models import PriceQuote, ProcurementDocument, Vendor
 from timbang.modules.procurement.schemas import PriceQuoteCreate, VendorCreate
 
 
@@ -108,3 +108,64 @@ class PriceQuoteRepository:
         )
         avg = result.scalar_one_or_none()
         return float(avg) if avg is not None else None
+
+
+class ProcurementDocumentRepository:
+    """Data access layer for ProcurementDocument entities."""
+
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
+
+    async def create(
+        self,
+        doc_type: str,
+        doc_number: str,
+        doc_date: str,
+        division: str,
+        vendor_reference: str = "",
+        amount: float | None = None,
+        currency: str = "IDR",
+        items_json: dict | None = None,
+        raw_metadata: dict | None = None,
+        source_file: str = "",
+    ) -> ProcurementDocument:
+        doc = ProcurementDocument(
+            doc_type=doc_type,
+            doc_number=doc_number,
+            doc_date=doc_date,
+            division=division,
+            vendor_reference=vendor_reference,
+            amount=amount,
+            currency=currency,
+            items_json=items_json or {},
+            raw_metadata=raw_metadata or {},
+            source_file=source_file,
+        )
+        self._session.add(doc)
+        await self._session.commit()
+        await self._session.refresh(doc)
+        return doc
+
+    async def list_by_type(self, doc_type: str, limit: int = 50) -> list[ProcurementDocument]:
+        result = await self._session.execute(
+            select(ProcurementDocument)
+            .where(ProcurementDocument.doc_type == doc_type)
+            .order_by(ProcurementDocument.created_at.desc())
+            .limit(limit)
+        )
+        return list(result.scalars().all())
+
+    async def get_by_number(self, doc_number: str) -> ProcurementDocument | None:
+        result = await self._session.execute(
+            select(ProcurementDocument).where(ProcurementDocument.doc_number == doc_number)
+        )
+        return result.scalar_one_or_none()
+
+    async def list_by_vendor(self, vendor_ref: str, limit: int = 50) -> list[ProcurementDocument]:
+        result = await self._session.execute(
+            select(ProcurementDocument)
+            .where(ProcurementDocument.vendor_reference == vendor_ref)
+            .order_by(ProcurementDocument.created_at.desc())
+            .limit(limit)
+        )
+        return list(result.scalars().all())
