@@ -18,7 +18,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from timbang.main import create_app
-from timbang.modules.procurement.repository import PriceQuoteRepository, VendorRepository
+from timbang.modules.procurement.repository import PriceQuoteRepository, VendorRepository, ProcurementDocumentRepository
 from timbang.modules.procurement.schemas import PriceQuoteCreate, VendorCreate
 from timbang.modules.procurement.service import (
     ProcurementService,
@@ -102,6 +102,7 @@ def _make_service(session) -> ProcurementService:
     return ProcurementService(
         vendor_repo=VendorRepository(session),
         quote_repo=PriceQuoteRepository(session),
+        doc_repo=ProcurementDocumentRepository(session),
     )
 
 

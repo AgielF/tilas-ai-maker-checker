@@ -7,8 +7,10 @@ from decimal import Decimal
 
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import select
 
 from timbang.modules.procurement.bon_parser import parse_bon_excel
+from timbang.modules.procurement.models import ProcurementDocument
 from timbang.modules.procurement.schemas import BonItem, ParsedBon
 
 
@@ -148,3 +150,43 @@ class TestBonEndpoint:
 
         assert response.status_code == 400
         assert "kosong" in response.json()["detail"].lower()
+
+    @pytest.mark.asyncio
+    async def test_parse_bon_saves_to_database(self, client: AsyncClient, session):
+        """Test that parsing BON auto-saves to procurement_documents table."""
+        content = await _read_sample_bon()
+        files = {"file": ("test_bon.xlsx", io.BytesIO(content), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+
+        response = await client.post("/api/v1/procurement/bons/parse", files=files)
+
+        assert response.status_code == 200
+
+        # Verify records were saved to database
+        result = await session.execute(select(ProcurementDocument))
+        docs = list(result.scalars().all())
+
+        # Should have 6 BONs from the sample file
+        assert len(docs) == 6
+
+        # Verify each document has correct fields
+        for doc in docs:
+            assert doc.doc_type == "BON"
+            assert doc.doc_number in {"1", "2", "3", "4", "5", "6"}
+            assert doc.division in {"PPIC", "PURCHASING", "PACKING", "SAMPLE", "OFFICE"}
+            assert doc.doc_date == "30 SEPTEMBER 2026"
+            assert doc.currency == "IDR"
+            assert doc.amount is None
+            assert doc.vendor_reference == ""
+            assert doc.source_file == "test_bon.xlsx"
+            assert "items" in doc.items_json
+            assert len(doc.items_json["items"]) > 0
+
+        # Verify specific BONs
+        bon1 = next((d for d in docs if d.doc_number == "1"), None)
+        assert bon1 is not None
+        assert bon1.division == "PPIC"
+
+        bon4 = next((d for d in docs if d.doc_number == "4"), None)
+        assert bon4 is not None
+        assert bon4.division == "SAMPLE"
+        assert len(bon4.items_json["items"]) == 6

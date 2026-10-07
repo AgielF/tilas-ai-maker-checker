@@ -10,7 +10,7 @@ import httpx
 import pytest
 from fastapi import UploadFile
 
-from timbang.modules.procurement.repository import PriceQuoteRepository, VendorRepository
+from timbang.modules.procurement.repository import PriceQuoteRepository, VendorRepository, ProcurementDocumentRepository
 from timbang.modules.procurement.service import ProcurementService
 from timbang.shared.core.exceptions import UpstreamError, ValidationError
 
@@ -19,6 +19,7 @@ def _make_service(session) -> ProcurementService:
     return ProcurementService(
         vendor_repo=VendorRepository(session),
         quote_repo=PriceQuoteRepository(session),
+        doc_repo=ProcurementDocumentRepository(session),
     )
 
 

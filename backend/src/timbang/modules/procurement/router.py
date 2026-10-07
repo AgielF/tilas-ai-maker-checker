@@ -13,7 +13,11 @@ import uuid
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from timbang.modules.procurement.repository import PriceQuoteRepository, VendorRepository
+from timbang.modules.procurement.repository import (
+    PriceQuoteRepository,
+    ProcurementDocumentRepository,
+    VendorRepository,
+)
 from timbang.modules.procurement.schemas import (
     ParsedBon,
     PriceQuoteCreate,
@@ -40,6 +44,7 @@ def _build_service(session: AsyncSession = Depends(get_session)) -> ProcurementS
     return ProcurementService(
         vendor_repo=VendorRepository(session),
         quote_repo=PriceQuoteRepository(session),
+        doc_repo=ProcurementDocumentRepository(session),
     )
 
 

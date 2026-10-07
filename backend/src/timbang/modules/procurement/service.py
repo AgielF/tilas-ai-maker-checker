@@ -22,7 +22,11 @@ import structlog
 from fastapi import UploadFile
 
 from timbang.modules.procurement.bon_parser import parse_bon_excel
-from timbang.modules.procurement.repository import PriceQuoteRepository, VendorRepository
+from timbang.modules.procurement.repository import (
+    PriceQuoteRepository,
+    ProcurementDocumentRepository,
+    VendorRepository,
+)
 from timbang.modules.procurement.schemas import (
     ParsedBon,
     PriceQuoteCreate,
@@ -256,9 +260,11 @@ class ProcurementService:
         self,
         vendor_repo: VendorRepository,
         quote_repo: PriceQuoteRepository,
+        doc_repo: ProcurementDocumentRepository,
     ) -> None:
         self._vendor_repo = vendor_repo
         self._quote_repo = quote_repo
+        self._doc_repo = doc_repo
 
     # ── Vendors ──────────────────────────────────────────────────────────────
 
@@ -591,6 +597,7 @@ class ProcurementService:
         """Parse Bon Permintaan Excel → list of ParsedBon.
 
         Validates file extension and size, then delegates to bon_parser.
+        Auto-saves each ParsedBon to procurement_documents.
         Raises ValidationError on bad input.
         """
         ext = Path(file.filename or "").suffix.lower()
@@ -609,4 +616,23 @@ class ProcurementService:
         if len(content) < 4:
             raise ValidationError("File kosong atau tidak valid")
 
-        return parse_bon_excel(content)
+        parsed_bons = parse_bon_excel(content)
+
+        # Auto-save each parsed BON to procurement_documents
+        source_filename = file.filename or "unknown.xlsx"
+        for bon in parsed_bons:
+            items_json = {"items": [item.model_dump() for item in bon.items]}
+            await self._doc_repo.create(
+                doc_type="BON",
+                doc_number=bon.bon_number,
+                doc_date=bon.date,
+                division=bon.division,
+                vendor_reference="",
+                amount=None,
+                currency="IDR",
+                items_json=items_json,
+                raw_metadata=bon.raw_metadata,
+                source_file=source_filename,
+            )
+
+        return parsed_bons
