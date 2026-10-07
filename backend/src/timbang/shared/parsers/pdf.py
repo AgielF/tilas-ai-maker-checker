@@ -286,14 +286,14 @@ async def extract_pdf_document(
 ) -> list[ParsedDocument]:
     """Extract ONE PDF -> list[ParsedDocument]. For Task 2.3 parser.
 
-    Upload 1 PDF -> call flow -> parse -> return list of ParsedDocument.
+    Upload 1 PDF -> call maker flow -> parse -> return list of ParsedDocument.
     """
     settings = get_settings()
-    flow_id = getattr(settings, "langflow_extractor_flow_id", None)
+    flow_id = settings.langflow_maker_flow_id
     if not flow_id:
         raise UpstreamError(
-            "LANGFLOW_EXTRACTOR_FLOW_ID belum dikonfigurasi. "
-            "Set env var LANGFLOW_EXTRACTOR_FLOW_ID sebelum menggunakan endpoint ini."
+            "LANGFLOW_MAKER_FLOW_ID belum dikonfigurasi. "
+            "Set env var LANGFLOW_MAKER_FLOW_ID sebelum menggunakan endpoint ini."
         )
 
     filename = file.filename or ""
@@ -335,12 +335,7 @@ async def extract_pdf_document(
         except (json.JSONDecodeError, KeyError, TypeError) as exc:
             raise UpstreamError("Langflow upload response tidak memiliki file_path.") from exc
 
-        tweaks = {}
-        if doc_type:
-            node_keys = _get_file_node_keys()
-            node_key = node_keys.get(doc_type.lower())
-            if node_key:
-                tweaks[node_key] = {"file_path": file_path}
+        tweaks = {"File-bHzNP": {"file_path": file_path}}
 
         run_response = await client.post(
             f"{settings.langflow_base_url}/api/v1/run/{flow_id}",

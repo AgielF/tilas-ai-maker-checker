@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 
 from timbang.modules.audit.router import router as audit_router
+from timbang.modules.parser.router import router as parser_router
 from timbang.modules.procurement.router import router as procurement_router
 from timbang.shared.core.config import get_settings
 from timbang.shared.core.logging import setup_logging
@@ -54,6 +55,7 @@ def create_app() -> FastAPI:
 
     app.include_router(procurement_router, prefix="/api/v1/procurement")
     app.include_router(audit_router, prefix="/api/v1/audit")
+    app.include_router(parser_router, prefix="/api/v1")
 
     @app.get("/health", tags=["ops"])
     async def health() -> dict[str, str]:
