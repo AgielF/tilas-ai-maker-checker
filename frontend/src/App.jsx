@@ -10,6 +10,8 @@ const NotFoundPage   = lazy(() => import('./pages/NotFoundPage'));
 const CheckerPage    = lazy(() => import('./pages/CheckerPage'));
 const RiskReportPage = lazy(() => import('./pages/RiskReportPage'));
 const MakerPage      = lazy(() => import('./pages/MakerPage'));
+const BonsPage       = lazy(() => import('./pages/BonsPage'));
+const BonDetailPage  = lazy(() => import('./pages/BonDetailPage'));
 const ComingSoonPage = lazy(() => import('./pages/ComingSoonPage'));
 
 // ─── Suspense fallback ───────────────────────────────────────────────────────
@@ -31,6 +33,8 @@ export default function App() {
           <Route path="/"                    element={<LandingPage />} />
           <Route path="/checker"             element={<CheckerPage />} />
           <Route path="/checker/risk-report" element={<RiskReportPage />} />
+          <Route path="/bons"                element={<BonsPage />} />
+          <Route path="/bons/:id"            element={<BonDetailPage />} />
 
           {/* Coming Soon routes */}
           <Route path="/dashboard" element={

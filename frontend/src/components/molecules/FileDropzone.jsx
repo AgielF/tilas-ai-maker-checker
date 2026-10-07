@@ -4,26 +4,43 @@ import Icon from '../atoms/Icon';
 /**
  * FileDropzone — drag-and-drop / click-to-pick file input.
  * Props:
- *   onFile     {(File) => void}   called when a valid file is picked
- *   onError    {(string) => void} called when validation fails
- *   accept     {string}           MIME type (default 'application/pdf')
- *   maxSizeMB  {number}           max allowed size in MB (default 10)
- *   disabled   {boolean}
+ *   onFile              {(File) => void}     called when a valid file is picked
+ *   onError             {(string) => void}   called when validation fails
+ *   accept              {string}             MIME types (default 'application/pdf,.pdf')
+ *   acceptExtensions    {string[]}           allowed extensions (default ['.pdf'])
+ *   acceptLabel         {string}             label for display (default 'PDF')
+ *   maxSizeMB           {number}             max allowed size in MB (default 10)
+ *   disabled            {boolean}
+ *   dropzoneText        {string}             custom dropzone text
+ *   sizeText            {string}             custom size text
+ *   errorInvalidFormat  {string}             error message for invalid format
  */
 function FileDropzone({
   onFile,
   onError,
-  accept = 'application/pdf',
+  accept = 'application/pdf,.pdf',
+  acceptExtensions = ['.pdf'],
+  acceptLabel = 'PDF',
   maxSizeMB = 10,
   disabled = false,
+  dropzoneText,
+  sizeText,
+  errorInvalidFormat = 'File harus berformat PDF.',
 }) {
   const inputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
 
   const validate = useCallback(
     (file) => {
-      if (file.type !== accept) {
-        onError('File harus berformat PDF.');
+      // Check file extension
+      const ext = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+      if (!acceptExtensions.includes(ext)) {
+        onError(errorInvalidFormat);
+        return false;
+      }
+      // Check MIME type (if accept is specified)
+      if (accept && !accept.split(',').some((a) => file.type === a.trim() || (a.trim().endsWith('/*') && file.type.startsWith(a.trim().slice(0, -1))))) {
+        onError(errorInvalidFormat);
         return false;
       }
       if (file.size > maxSizeMB * 1024 * 1024) {
@@ -32,7 +49,7 @@ function FileDropzone({
       }
       return true;
     },
-    [accept, maxSizeMB, onError]
+    [acceptExtensions, accept, maxSizeMB, onError, errorInvalidFormat]
   );
 
   const handleFile = useCallback(
@@ -67,11 +84,15 @@ function FileDropzone({
     handleFile(e.dataTransfer.files?.[0]);
   };
 
+  const displayText = dropzoneText || `Drag & drop ${acceptLabel} atau `;
+  const clickText = 'klik untuk pilih';
+  const displaySizeText = sizeText || `${acceptLabel} · maks. ${maxSizeMB} MB`;
+
   return (
     <div
       role="button"
       tabIndex={disabled ? -1 : 0}
-      aria-label="Upload PDF"
+      aria-label={`Upload ${acceptLabel}`}
       onClick={handleClick}
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClick()}
       onDragOver={handleDragOver}
@@ -90,11 +111,11 @@ function FileDropzone({
     >
       <Icon name="upload-cloud" size={32} strokeWidth={1.5} />
       <p className="text-sm text-center leading-relaxed">
-        Drag &amp; drop PDF atau{' '}
-        <span className="text-electric font-medium">klik untuk pilih</span>
+        {displayText}
+        <span className="text-electric font-medium">{clickText}</span>
       </p>
       <p className="text-xs text-[var(--color-text-mute)]">
-        PDF · maks. {maxSizeMB} MB
+        {displaySizeText}
       </p>
 
       <input

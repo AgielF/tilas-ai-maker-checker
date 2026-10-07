@@ -83,4 +83,25 @@ export const api = {
 
   getFinding: (id, opts = {}) =>
     request(`/api/v1/audit/findings/${encodeURIComponent(id)}`, opts),
+
+  // Bon Permintaan (Purchase Request) endpoints
+  parseBons: (file) => {
+    const form = new FormData()
+    form.append('file', file)
+    return request('/api/v1/procurement/bons/parse', {
+      method: 'POST',
+      body: form,
+    })
+  },
+
+  listDocuments: (params = {}) => {
+    const clean = Object.fromEntries(
+      Object.entries(params).filter(([_key, v]) => v !== undefined && v !== null && v !== '')
+    )
+    const qs = new URLSearchParams(clean).toString()
+    return request(`/api/v1/procurement/documents?${qs}`)
+  },
+
+  getDocument: (id) =>
+    request(`/api/v1/procurement/documents/${encodeURIComponent(id)}`),
 }

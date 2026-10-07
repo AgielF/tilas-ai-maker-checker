@@ -233,7 +233,7 @@ export default function CheckerPage() {
           <div className="flex items-start gap-3 border border-sev-critical/30 bg-sev-critical/5 px-4 py-4">
             <span className="text-sev-critical shrink-0 mt-0.5"><Icon name="x-circle" size={16} /></span>
             <div className="flex flex-col gap-2">
-              <p className="text-sm text-sev-critical">{error.message}</p>
+              <p className="text-sm text-sev-critical">{String(error)}</p>
               <Button variant="ghost" size="sm" className="self-start" onClick={handleRun}>
                 Retry
               </Button>

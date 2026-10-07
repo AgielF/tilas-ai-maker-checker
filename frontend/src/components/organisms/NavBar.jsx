@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import NavLink from '../molecules/NavLink';
 
 const NAV_LINKS = [
+  { to: '/bons',           label: 'Bon',      dimmed: false },
   { to: '/#features',      label: 'Product',  dimmed: false },
   { to: '/#how-it-works',  label: 'Research', dimmed: false },
   { to: '/checker',        label: 'Checker',  dimmed: false },
