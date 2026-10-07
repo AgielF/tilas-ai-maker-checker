@@ -190,3 +190,91 @@ class TestBonEndpoint:
         assert bon4 is not None
         assert bon4.division == "SAMPLE"
         assert len(bon4.items_json["items"]) == 6
+
+    @pytest.mark.asyncio
+    async def test_list_documents_after_upload(self, client: AsyncClient, session):
+        """Test that listing documents works after BON upload."""
+        content = await _read_sample_bon()
+        files = {"file": ("test_bon.xlsx", io.BytesIO(content), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+
+        # Upload first
+        response = await client.post("/api/v1/procurement/bons/parse", files=files)
+        assert response.status_code == 200
+
+        # List all documents
+        response = await client.get("/api/v1/procurement/documents")
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) == 6
+
+        # Verify list item structure
+        doc1 = data[0]
+        assert "id" in doc1
+        assert doc1["doc_type"] == "BON"
+        assert "doc_number" in doc1
+        assert "doc_date" in doc1
+        assert "division" in doc1
+        assert "item_count" in doc1
+        assert "source_file" in doc1
+        assert "created_at" in doc1
+
+    @pytest.mark.asyncio
+    async def test_list_documents_filter_by_division(self, client: AsyncClient, session):
+        """Test filtering documents by division."""
+        content = await _read_sample_bon()
+        files = {"file": ("test_bon.xlsx", io.BytesIO(content), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+
+        await client.post("/api/v1/procurement/bons/parse", files=files)
+
+        # Filter by SAMPLE division (should have BON 4 and 5)
+        response = await client.get("/api/v1/procurement/documents", params={"division": "SAMPLE"})
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 2
+        assert all(d["division"] == "SAMPLE" for d in data)
+        bon_numbers = {d["doc_number"] for d in data}
+        assert bon_numbers == {"4", "5"}
+
+        # Filter by PPIC division (should have BON 1)
+        response = await client.get("/api/v1/procurement/documents", params={"division": "PPIC"})
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 1
+        assert data[0]["division"] == "PPIC"
+        assert data[0]["doc_number"] == "1"
+
+    @pytest.mark.asyncio
+    async def test_get_document_detail(self, client: AsyncClient, session):
+        """Test getting document detail by ID."""
+        content = await _read_sample_bon()
+        files = {"file": ("test_bon.xlsx", io.BytesIO(content), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+
+        await client.post("/api/v1/procurement/bons/parse", files=files)
+
+        # Get first document ID
+        response = await client.get("/api/v1/procurement/documents")
+        assert response.status_code == 200
+        docs = response.json()
+        doc_id = docs[0]["id"]
+
+        # Get detail
+        response = await client.get(f"/api/v1/procurement/documents/{doc_id}")
+        assert response.status_code == 200
+        detail = response.json()
+        assert detail["id"] == doc_id
+        assert detail["doc_type"] == "BON"
+        assert "items" in detail
+        assert isinstance(detail["items"], list)
+        assert len(detail["items"]) > 0
+        assert "raw_metadata" in detail
+        assert "created_at" in detail
+
+    @pytest.mark.asyncio
+    async def test_get_document_not_found(self, client: AsyncClient):
+        """Test getting non-existent document returns 404."""
+        import uuid as uuid_module
+        random_id = uuid_module.uuid4()
+        response = await client.get(f"/api/v1/procurement/documents/{random_id}")
+        assert response.status_code == 404
+        assert "not found" in response.json()["detail"].lower()

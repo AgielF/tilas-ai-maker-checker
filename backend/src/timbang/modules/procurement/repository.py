@@ -169,3 +169,38 @@ class ProcurementDocumentRepository:
             .limit(limit)
         )
         return list(result.scalars().all())
+
+    async def list_documents(
+        self,
+        doc_type: str | None = None,
+        division: str | None = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> list[ProcurementDocument]:
+        stmt = select(ProcurementDocument).order_by(ProcurementDocument.created_at.desc())
+        if doc_type:
+            stmt = stmt.where(ProcurementDocument.doc_type == doc_type)
+        if division:
+            stmt = stmt.where(ProcurementDocument.division == division)
+        stmt = stmt.limit(limit).offset(offset)
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def count_documents(
+        self,
+        doc_type: str | None = None,
+        division: str | None = None,
+    ) -> int:
+        stmt = select(func.count(ProcurementDocument.id))
+        if doc_type:
+            stmt = stmt.where(ProcurementDocument.doc_type == doc_type)
+        if division:
+            stmt = stmt.where(ProcurementDocument.division == division)
+        result = await self._session.execute(stmt)
+        return result.scalar_one() or 0
+
+    async def get_by_id(self, doc_id: uuid.UUID) -> ProcurementDocument | None:
+        result = await self._session.execute(
+            select(ProcurementDocument).where(ProcurementDocument.id == doc_id)
+        )
+        return result.scalar_one_or_none()

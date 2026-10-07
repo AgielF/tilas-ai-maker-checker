@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from timbang.modules.procurement.repository import (
@@ -19,6 +19,8 @@ from timbang.modules.procurement.repository import (
     VendorRepository,
 )
 from timbang.modules.procurement.schemas import (
+    DocumentDetail,
+    DocumentListItem,
     ParsedBon,
     PriceQuoteCreate,
     PriceQuoteRead,
@@ -153,5 +155,38 @@ async def parse_bon_endpoint(
     """Parse Bon Permintaan (Excel) → structured JSON."""
     try:
         return await service.parse_bon_from_file(file)
+    except DomainError as exc:
+        raise _map_exception(exc) from exc
+
+
+@router.get("/documents", response_model=list[DocumentListItem])
+@limiter.limit("30/minute")
+async def list_documents(
+    request: Request,
+    doc_type: str | None = Query(None),
+    division: str | None = Query(None),
+    limit: int = Query(50, le=100),
+    offset: int = Query(0, ge=0),
+    service: ProcurementService = Depends(_build_service),
+) -> list[DocumentListItem]:
+    """List procurement documents with optional filters."""
+    try:
+        return await service.list_documents(
+            doc_type=doc_type, division=division, limit=limit, offset=offset
+        )
+    except DomainError as exc:
+        raise _map_exception(exc) from exc
+
+
+@router.get("/documents/{doc_id}", response_model=DocumentDetail)
+@limiter.limit("30/minute")
+async def get_document(
+    request: Request,
+    doc_id: uuid.UUID,
+    service: ProcurementService = Depends(_build_service),
+) -> DocumentDetail:
+    """Get detail of one procurement document."""
+    try:
+        return await service.get_document(doc_id)
     except DomainError as exc:
         raise _map_exception(exc) from exc

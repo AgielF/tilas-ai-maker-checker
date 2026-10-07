@@ -198,3 +198,43 @@ class ParsedBon(BaseModel):
     items: list[BonItem] = []
     source_file: str = ""
     raw_metadata: dict = {}
+
+
+# ── Procurement Documents ───────────────────────────────────────────────────────
+
+
+class DocumentListItem(BaseModel):
+    """Lightweight document for list view."""
+
+    model_config = ConfigDict(from_attributes=True, extra="ignore")
+
+    id: uuid.UUID
+    doc_type: str
+    doc_number: str
+    doc_date: str
+    division: str
+    vendor_reference: str
+    amount: float | None
+    currency: str
+    item_count: int
+    source_file: str
+    created_at: datetime
+
+
+class DocumentDetail(BaseModel):
+    """Full document detail including items."""
+
+    model_config = ConfigDict(from_attributes=True, extra="ignore")
+
+    id: uuid.UUID
+    doc_type: str
+    doc_number: str
+    doc_date: str
+    division: str
+    vendor_reference: str
+    amount: float | None
+    currency: str
+    items: list[dict]
+    raw_metadata: dict
+    source_file: str
+    created_at: datetime

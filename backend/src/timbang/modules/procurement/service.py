@@ -22,12 +22,15 @@ import structlog
 from fastapi import UploadFile
 
 from timbang.modules.procurement.bon_parser import parse_bon_excel
+from timbang.modules.procurement.models import ProcurementDocument
 from timbang.modules.procurement.repository import (
     PriceQuoteRepository,
     ProcurementDocumentRepository,
     VendorRepository,
 )
 from timbang.modules.procurement.schemas import (
+    DocumentDetail,
+    DocumentListItem,
     ParsedBon,
     PriceQuoteCreate,
     PriceQuoteRead,
@@ -636,3 +639,63 @@ class ProcurementService:
             )
 
         return parsed_bons
+
+    # ── Procurement Documents ──────────────────────────────────────────────────
+
+    def _to_list_item(self, doc: ProcurementDocument) -> DocumentListItem:
+        """Convert ProcurementDocument to DocumentListItem."""
+        item_count = len(doc.items_json.get("items", [])) if doc.items_json else 0
+        return DocumentListItem(
+            id=doc.id,
+            doc_type=doc.doc_type,
+            doc_number=doc.doc_number,
+            doc_date=doc.doc_date,
+            division=doc.division,
+            vendor_reference=doc.vendor_reference,
+            amount=doc.amount,
+            currency=doc.currency,
+            item_count=item_count,
+            source_file=doc.source_file,
+            created_at=doc.created_at,
+        )
+
+    def _to_detail(self, doc: ProcurementDocument) -> DocumentDetail:
+        """Convert ProcurementDocument to DocumentDetail."""
+        items = doc.items_json.get("items", []) if doc.items_json else []
+        return DocumentDetail(
+            id=doc.id,
+            doc_type=doc.doc_type,
+            doc_number=doc.doc_number,
+            doc_date=doc.doc_date,
+            division=doc.division,
+            vendor_reference=doc.vendor_reference,
+            amount=doc.amount,
+            currency=doc.currency,
+            items=items,
+            raw_metadata=doc.raw_metadata or {},
+            source_file=doc.source_file,
+            created_at=doc.created_at,
+        )
+
+    async def list_documents(
+        self,
+        doc_type: str | None = None,
+        division: str | None = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> list[DocumentListItem]:
+        """List procurement documents with optional filters."""
+        docs = await self._doc_repo.list_documents(
+            doc_type=doc_type,
+            division=division,
+            limit=limit,
+            offset=offset,
+        )
+        return [self._to_list_item(doc) for doc in docs]
+
+    async def get_document(self, doc_id: uuid.UUID) -> DocumentDetail:
+        """Get document detail by ID. Raises NotFoundError if not found."""
+        doc = await self._doc_repo.get_by_id(doc_id)
+        if doc is None:
+            raise NotFoundError(f"Document {doc_id} not found.")
+        return self._to_detail(doc)
