@@ -14,7 +14,6 @@ import pandas as pd
 
 from timbang.shared.schemas.document import DocumentType, ExtractedItem, ParsedDocument
 
-
 _BON_KEYWORDS = [
     "BON PERMINTAAN BARANG",
     "BON PETMINTAAN BARANG",  # typo in sample
@@ -159,20 +158,23 @@ def _parse_items_from_df(df: pd.DataFrame, start_row: int, header_row: int) -> l
     """
     header_row_data = df.iloc[header_row]
     col_map = _detect_columns(header_row_data)
-    
-    no_col = col_map.get("no", 0)
+
     nama_col = col_map.get("nama_barang", 1)
     qty_col = col_map.get("qty", 2)
-    
+
     # Smart satuan column detection
     satuan_col = col_map.get("satuan")
-    if satuan_col is not None and "stock_gudang" in col_map and col_map.get("stock_gudang") == satuan_col:
+    if (
+        satuan_col is not None
+        and "stock_gudang" in col_map
+        and col_map.get("stock_gudang") == satuan_col
+    ):
         satuan_col = qty_col + 1
     elif satuan_col is None:
         satuan_col = qty_col + 1
     else:
         satuan_col = col_map["satuan"]
-    
+
     keterangan_col = col_map.get("keterangan", 8)
 
     items: list[ExtractedItem] = []

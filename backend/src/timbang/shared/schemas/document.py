@@ -5,6 +5,7 @@ This module contains schemas that are used across multiple modules
 """
 
 from enum import StrEnum
+
 from pydantic import BaseModel, computed_field
 
 
@@ -53,7 +54,7 @@ class ParsedDocument(BaseModel):
     def bon_number(self) -> str:
         """Alias for doc_number for backward compatibility with BON-specific code."""
         return self.doc_number
-    
+
     @computed_field
     @property
     def date(self) -> str:

@@ -21,7 +21,6 @@ import httpx
 import structlog
 from fastapi import UploadFile
 
-from timbang.shared.parsers.excel import parse_excel_document as parse_bon_excel
 from timbang.modules.procurement.models import ProcurementDocument
 from timbang.modules.procurement.repository import (
     PriceQuoteRepository,
@@ -46,6 +45,7 @@ from timbang.shared.core.exceptions import (
     UpstreamError,
     ValidationError,
 )
+from timbang.shared.parsers.excel import parse_excel_document as parse_bon_excel
 
 log = structlog.get_logger(__name__)
 

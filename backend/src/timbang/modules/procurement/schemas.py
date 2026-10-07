@@ -12,6 +12,9 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
+# Aliases for backward compatibility with shared schemas
+from timbang.shared.schemas.document import ParsedDocument as ParsedBon  # noqa: F401
+
 # ── Vendor ──────────────────────────────────────────────────────────────────
 
 
@@ -172,10 +175,6 @@ class RecommendationResponse(BaseModel):
 
 
 # ── Bon Permintaan (Purchase Request) ──────────────────────────────────────────
-# Aliases for backward compatibility with shared schemas
-
-from timbang.shared.schemas.document import ExtractedItem as BonItem
-from timbang.shared.schemas.document import ParsedDocument as ParsedBon
 
 
 # ── Procurement Documents ───────────────────────────────────────────────────────
