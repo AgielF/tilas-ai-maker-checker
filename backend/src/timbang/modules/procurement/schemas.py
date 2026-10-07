@@ -172,32 +172,10 @@ class RecommendationResponse(BaseModel):
 
 
 # ── Bon Permintaan (Purchase Request) ──────────────────────────────────────────
+# Aliases for backward compatibility with shared schemas
 
-
-class BonItem(BaseModel):
-    """Single line item from a Bon Permintaan (Purchase Request)."""
-
-    model_config = ConfigDict(extra="ignore")
-
-    no: str = ""
-    nama_barang: str = ""
-    qty: float | None = None
-    satuan: str = ""
-    keterangan: str = ""
-
-
-class ParsedBon(BaseModel):
-    """Parsed Bon Permintaan from Excel file (can contain multiple BON sections per sheet)."""
-
-    model_config = ConfigDict(extra="ignore")
-
-    bon_number: str = ""
-    date: str = ""
-    division: str = ""
-    sheet_name: str = ""
-    items: list[BonItem] = []
-    source_file: str = ""
-    raw_metadata: dict = {}
+from timbang.shared.schemas.document import ExtractedItem as BonItem
+from timbang.shared.schemas.document import ParsedDocument as ParsedBon
 
 
 # ── Procurement Documents ───────────────────────────────────────────────────────

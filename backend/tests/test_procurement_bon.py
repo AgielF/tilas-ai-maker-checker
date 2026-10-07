@@ -9,9 +9,9 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy import select
 
-from timbang.modules.procurement.bon_parser import parse_bon_excel
+from timbang.shared.parsers.excel import parse_excel_document as parse_bon_excel
 from timbang.modules.procurement.models import ProcurementDocument
-from timbang.modules.procurement.schemas import BonItem, ParsedBon
+from timbang.shared.schemas.document import ExtractedItem as BonItem, ParsedDocument as ParsedBon
 
 
 async def _read_sample_bon() -> bytes:

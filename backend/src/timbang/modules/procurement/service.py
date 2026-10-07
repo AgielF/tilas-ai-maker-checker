@@ -21,7 +21,7 @@ import httpx
 import structlog
 from fastapi import UploadFile
 
-from timbang.modules.procurement.bon_parser import parse_bon_excel
+from timbang.shared.parsers.excel import parse_excel_document as parse_bon_excel
 from timbang.modules.procurement.models import ProcurementDocument
 from timbang.modules.procurement.repository import (
     PriceQuoteRepository,
