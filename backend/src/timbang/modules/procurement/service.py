@@ -8,6 +8,7 @@ Rules (docs/agents/BACKEND_AGENTS.md):
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import re
@@ -458,18 +459,31 @@ class ProcurementService:
     )
     _MAX_FILE_SIZE_MB = 10
 
+    def _excel_to_csv_text(self, content: bytes) -> str:
+        """Convert multi-sheet Excel to CSV text (all sheets)."""
+        import pandas as pd
+
+        sheets = pd.read_excel(io.BytesIO(content), sheet_name=None, header=None)
+        parts = []
+        for sheet_name, df in sheets.items():
+            parts.append(f"=== Sheet: {sheet_name} ===")
+            parts.append(df.to_csv(index=False, header=False))
+            parts.append("")
+        return "\n".join(parts)
+
     async def get_recommendation_from_file(
         self,
         item_name: str,
         file: UploadFile,
     ) -> RecommendationResponse:
-        """Upload file → Langflow Read File node → Maker Agent → Recommendation.
+        """Upload file (PDF or Excel) → Langflow Read File node → Maker Agent → Recommendation.
 
         Steps:
           1. Validate extension and size (≤ 10 MB).
-          2. Upload file to Langflow /api/v1/files/upload/{flow_id}.
-          3. Call /api/v1/run/{flow_id} with file_path tweak.
-          4. Parse Langflow response → RecommendationResponse.
+          2. If Excel, convert to CSV text.
+          3. Upload file to Langflow /api/v1/files/upload/{flow_id}.
+          4. Call /api/v1/run/{flow_id} with file_path tweak.
+          5. Parse Langflow response → RecommendationResponse.
 
         Raises ValidationError on bad input, UpstreamError on Langflow failure.
         NEVER logs api_key.
@@ -484,7 +498,8 @@ class ProcurementService:
             )
 
         # 2. Validate extension
-        ext = os.path.splitext(file.filename or "")[1].lower()
+        filename = file.filename or ""
+        ext = os.path.splitext(filename)[1].lower()
         if ext not in self._ALLOWED_EXTENSIONS:
             raise ValidationError(
                 f"Format file tidak didukung: '{ext}'. "
@@ -499,13 +514,24 @@ class ProcurementService:
                 f"File terlalu besar: {len(content) / (1024*1024):.1f} MB. "
                 f"Maks {self._MAX_FILE_SIZE_MB} MB."
             )
+        if len(content) < 4:
+            raise ValidationError("File kosong atau tidak valid.")
 
+        # 4. Handle Excel → convert to CSV text
         flow_id = settings.langflow_maker_flow_id
         headers: dict[str, str] = {}
         if settings.langflow_api_key:
             headers["x-api-key"] = settings.langflow_api_key  # NEVER logged
 
-        content_type = file.content_type or "application/octet-stream"
+        if ext in {".xlsx", ".xls"}:
+            csv_text = self._excel_to_csv_text(content)
+            upload_content = csv_text.encode("utf-8")
+            upload_filename = Path(filename).stem + ".csv"
+            content_type = "text/csv"
+        else:
+            upload_content = content
+            upload_filename = filename
+            content_type = file.content_type or "application/octet-stream"
 
         try:
             async with httpx.AsyncClient(timeout=settings.langflow_timeout_seconds) as client:
@@ -514,7 +540,7 @@ class ProcurementService:
                 upload_resp = await client.post(
                     upload_url,
                     headers=headers,
-                    files={"file": (file.filename, content, content_type)},
+                    files={"file": (upload_filename, upload_content, content_type)},
                 )
                 if upload_resp.status_code not in (200, 201):
                     raise UpstreamError(
