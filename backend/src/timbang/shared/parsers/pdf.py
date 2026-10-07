@@ -6,6 +6,7 @@ import json
 import os
 import re
 import time
+from pathlib import Path
 
 import httpx
 import structlog
@@ -14,6 +15,7 @@ from fastapi import UploadFile
 from timbang.modules.audit.schemas import DocumentExtraction, MultiDocumentExtraction
 from timbang.shared.core.config import get_settings
 from timbang.shared.core.exceptions import UpstreamError, ValidationError
+from timbang.shared.parsers.excel import excel_to_csv_text
 from timbang.shared.schemas.document import DocumentType, ExtractedItem, ParsedDocument
 
 log = structlog.get_logger(__name__)
@@ -81,8 +83,9 @@ async def _upload_file_to_langflow(
     upload_url: str,
     headers: dict[str, str],
     document_key: str,
-    file: UploadFile,
+    filename: str,
     content: bytes,
+    content_type: str,
 ) -> str:
     """Upload a single file to Langflow and return the file_path."""
     upload_response = await client.post(
@@ -90,9 +93,9 @@ async def _upload_file_to_langflow(
         headers=headers,
         files={
             "file": (
-                file.filename,
+                filename,
                 content,
-                file.content_type or "application/pdf",
+                content_type,
             )
         },
     )
@@ -117,7 +120,7 @@ async def extract_all_pdf_documents(
     invoice_file: UploadFile,
     tax_invoice_file: UploadFile | None = None,
 ) -> list[dict]:
-    """Upload 3-4 PDFs, run the Checker flow once, and parse all extractions.
+    """Upload 3-4 PDFs or Excel files, run the Checker flow once, and parse all extractions.
 
     Returns a list of dicts in order: [po, gr, invoice, tax_invoice].
     Each dict contains at minimum:
@@ -149,23 +152,37 @@ async def extract_all_pdf_documents(
     for document_key, file in named_files:
         filename = file.filename or ""
         extension = os.path.splitext(filename)[1].lower()
-        if extension != ".pdf":
+        if extension not in {".pdf", ".xlsx", ".xls"}:
             raise ValidationError(
-                f"Format file tidak didukung untuk {document_key}. Unggah dokumen PDF."
+                f"Format file tidak didukung untuk {document_key}. Unggah dokumen PDF atau Excel."
             )
 
         content = await file.read()
         if len(content) > 10 * 1024 * 1024:
             raise ValidationError(f"File {filename} terlalu besar. Maks 10 MB.")
-        if b"%PDF-" not in content[:1024]:
-            raise ValidationError(f"File '{filename}' bukan PDF yang valid.")
+        if len(content) < 4:
+            raise ValidationError("File kosong atau tidak valid.")
 
-        file_contents.append((document_key, file, filename, content))
+        # Handle Excel -> convert to CSV text
+        if extension in {".xlsx", ".xls"}:
+            csv_text = excel_to_csv_text(content)
+            upload_content = csv_text.encode("utf-8")
+            upload_filename = Path(filename).stem + ".csv"
+            content_type = "text/csv"
+        else:
+            # Validate PDF
+            if b"%PDF-" not in content[:1024]:
+                raise ValidationError(f"File '{filename}' bukan PDF yang valid.")
+            upload_content = content
+            upload_filename = filename
+            content_type = file.content_type or "application/pdf"
+
+        file_contents.append((document_key, upload_filename, content_type, upload_content))
 
     file_node_keys = _get_file_node_keys()
     missing_node_keys = [
         document_key
-        for document_key, _file, _filename, _content in file_contents
+        for document_key, _filename, _content_type, _content in file_contents
         if not file_node_keys.get(document_key)
     ]
     if missing_node_keys:
@@ -180,14 +197,15 @@ async def extract_all_pdf_documents(
     try:
         async with httpx.AsyncClient(timeout=settings.langflow_timeout_seconds) as client:
             uploaded_paths = {}
-            for document_key, file, _filename, content in file_contents:
+            for document_key, upload_filename, content_type, upload_content in file_contents:
                 file_path = await _upload_file_to_langflow(
                     client,
                     f"{settings.langflow_base_url}/api/v1/files/upload/{flow_id}",
                     headers,
                     document_key,
-                    file,
-                    content,
+                    upload_filename,
+                    upload_content,
+                    content_type,
                 )
                 uploaded_paths[document_key] = file_path
 

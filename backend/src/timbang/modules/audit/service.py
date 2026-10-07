@@ -11,6 +11,7 @@ import json
 import re
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from pathlib import Path
 
 import httpx
 import structlog
@@ -33,6 +34,7 @@ from timbang.modules.audit.schemas import (
 )
 from timbang.shared.core.config import get_settings
 from timbang.shared.core.exceptions import UpstreamError, ValidationError
+from timbang.shared.parsers.excel import excel_to_csv_text
 from timbang.shared.parsers.pdf import (
     _extract_langflow_text,
     _get_file_node_keys,
@@ -239,21 +241,38 @@ class AuditService:
         for document_key, file in named_files:
             filename = file.filename or ""
             extension = os.path.splitext(filename)[1].lower()
-            if extension != ".pdf":
+            if extension not in {".pdf", ".xlsx", ".xls"}:
                 raise ValidationError(
-                    f"Format file tidak didukung untuk {document_key}. Unggah dokumen PDF."
+                    "Format file tidak didukung untuk "
+                    f"{document_key}. Unggah dokumen PDF atau Excel."
                 )
             content = await file.read()
             if len(content) > 10 * 1024 * 1024:
                 raise ValidationError(f"File {filename} terlalu besar. Maks 10 MB.")
-            if b"%PDF-" not in content[:1024]:
-                raise ValidationError(f"File '{filename}' bukan PDF yang valid.")
-            file_contents.append((document_key, file, filename, content))
+            if len(content) < 4:
+                raise ValidationError("File kosong atau tidak valid.")
+
+            # Handle Excel -> convert to CSV text
+            if extension in {".xlsx", ".xls"}:
+                csv_text = excel_to_csv_text(content)
+                upload_content = csv_text.encode("utf-8")
+                upload_filename = Path(filename).stem + ".csv"
+                content_type = "text/csv"
+            else:
+                if b"%PDF-" not in content[:1024]:
+                    raise ValidationError(f"File '{filename}' bukan PDF yang valid.")
+                upload_content = content
+                upload_filename = filename
+                content_type = file.content_type or "application/pdf"
+
+            file_contents.append(
+                (document_key, file, upload_filename, content_type, upload_content)
+            )
 
         file_node_keys = _get_file_node_keys()
         missing_node_keys = [
             document_key
-            for document_key, _file, _filename, _content in file_contents
+            for document_key, _file, _filename, _content_type, _content in file_contents
             if not file_node_keys.get(document_key)
         ]
         if missing_node_keys:
@@ -267,14 +286,15 @@ class AuditService:
 
         async with httpx.AsyncClient(timeout=settings.langflow_timeout_seconds) as client:
             uploaded_paths = {}
-            for document_key, file, _filename, content in file_contents:
+            for document_key, _file, upload_filename, content_type, upload_content in file_contents:
                 file_path = await _upload_file_to_langflow(
                     client,
                     f"{settings.langflow_base_url}/api/v1/files/upload/{flow_id}",
                     headers,
                     document_key,
-                    file,
-                    content,
+                    upload_filename,
+                    upload_content,
+                    content_type,
                 )
                 uploaded_paths[document_key] = file_path
 

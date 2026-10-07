@@ -312,3 +312,21 @@ def parse_excel_document(file_bytes: bytes) -> list[ParsedDocument]:
 
 
 parse_bon_excel = parse_excel_document
+
+
+def excel_to_csv_text(content: bytes) -> str:
+    """Convert multi-sheet Excel to CSV text (all sheets).
+
+    Generic helper for converting Excel files to CSV text for Langflow processing.
+    """
+    import io
+
+    import pandas as pd
+
+    sheets = pd.read_excel(io.BytesIO(content), sheet_name=None, header=None)
+    parts = []
+    for sheet_name, df in sheets.items():
+        parts.append(f"=== Sheet: {sheet_name} ===")
+        parts.append(df.to_csv(index=False, header=False))
+        parts.append("")
+    return "\n".join(parts)

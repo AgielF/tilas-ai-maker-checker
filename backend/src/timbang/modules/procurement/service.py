@@ -8,7 +8,6 @@ Rules (docs/agents/BACKEND_AGENTS.md):
 
 from __future__ import annotations
 
-import io
 import json
 import os
 import re
@@ -46,7 +45,12 @@ from timbang.shared.core.exceptions import (
     UpstreamError,
     ValidationError,
 )
-from timbang.shared.parsers.excel import parse_excel_document as parse_bon_excel
+from timbang.shared.parsers.excel import (
+    excel_to_csv_text,
+)
+from timbang.shared.parsers.excel import (
+    parse_excel_document as parse_bon_excel,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -459,18 +463,6 @@ class ProcurementService:
     )
     _MAX_FILE_SIZE_MB = 10
 
-    def _excel_to_csv_text(self, content: bytes) -> str:
-        """Convert multi-sheet Excel to CSV text (all sheets)."""
-        import pandas as pd
-
-        sheets = pd.read_excel(io.BytesIO(content), sheet_name=None, header=None)
-        parts = []
-        for sheet_name, df in sheets.items():
-            parts.append(f"=== Sheet: {sheet_name} ===")
-            parts.append(df.to_csv(index=False, header=False))
-            parts.append("")
-        return "\n".join(parts)
-
     async def get_recommendation_from_file(
         self,
         item_name: str,
@@ -524,7 +516,7 @@ class ProcurementService:
             headers["x-api-key"] = settings.langflow_api_key  # NEVER logged
 
         if ext in {".xlsx", ".xls"}:
-            csv_text = self._excel_to_csv_text(content)
+            csv_text = excel_to_csv_text(content)
             upload_content = csv_text.encode("utf-8")
             upload_filename = Path(filename).stem + ".csv"
             content_type = "text/csv"
