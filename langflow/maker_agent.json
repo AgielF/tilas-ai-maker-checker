@@ -578,7 +578,7 @@
             "frozen": false,
             "icon": "file-text",
             "key": "File",
-            "last_updated": "2026-10-05T03:05:21.638Z",
+            "last_updated": "2026-10-07T22:53:04.437Z",
             "legacy": false,
             "lf_version": "",
             "metadata": {
@@ -617,24 +617,6 @@
                 "loop_types": null,
                 "method": "load_files_message",
                 "name": "message",
-                "options": null,
-                "required_inputs": null,
-                "selected": "Message",
-                "tool_mode": true,
-                "types": [
-                  "Message"
-                ],
-                "value": "__UNDEFINED__"
-              },
-              {
-                "allows_loop": false,
-                "cache": true,
-                "display_name": "File Path",
-                "group_outputs": false,
-                "hidden": null,
-                "loop_types": null,
-                "method": "load_files_path",
-                "name": "path",
                 "options": null,
                 "required_inputs": null,
                 "selected": "Message",
@@ -1105,9 +1087,7 @@
                   "bz2",
                   "gz"
                 ],
-                "file_path": [
-                  "aadfd41d-c038-4bb3-808b-9ef981dc6aa6/Surat Penawaran Harga - PT Maju Jaya Teknologi.pdf"
-                ],
+                "file_path": [],
                 "info": "Supported file extensions: csv, json, pdf, txt, md, mdx, yaml, yml, xml, html, htm, docx, py, sh, sql, js, ts, tsx, adoc, asciidoc, asc, bmp, dotx, dotm, docm, jpg, jpeg, png, potx, ppsx, pptm, potm, ppsm, pptx, tiff, xls, xlsx, xhtml, webp; optionally bundled in file extensions: zip, tar, tgz, bz2, gz",
                 "list": true,
                 "list_add_label": "Add More",
@@ -1145,7 +1125,7 @@
                 "placeholder": "",
                 "real_time_refresh": true,
                 "required": false,
-                "show": true,
+                "show": false,
                 "title_case": false,
                 "toggle": false,
                 "tool_mode": false,
@@ -1311,7 +1291,7 @@
         "dragging": false,
         "id": "File-bHzNP",
         "measured": {
-          "height": 211,
+          "height": 259,
           "width": 320
         },
         "position": {
@@ -1583,7 +1563,7 @@
             "frozen": false,
             "icon": "brain-circuit",
             "key": "LanguageModelComponent",
-            "last_updated": "2026-10-05T03:05:21.641Z",
+            "last_updated": "2026-10-07T22:41:17.750Z",
             "legacy": false,
             "lf_version": "",
             "metadata": {
@@ -1755,7 +1735,7 @@
                 "type": "str",
                 "value": ""
               },
-              "is_refresh": true,
+              "is_refresh": false,
               "max_tokens": {
                 "_input_type": "IntInput",
                 "advanced": false,
@@ -2757,7 +2737,7 @@
           "x": 2997.4724715055972,
           "y": 446.98914610454716
         },
-        "selected": false,
+        "selected": true,
         "type": "genericNode"
       },
       {
@@ -2792,7 +2772,7 @@
             ],
             "frozen": false,
             "icon": "brain-circuit",
-            "last_updated": "2026-10-05T03:05:21.644Z",
+            "last_updated": "2026-10-07T22:41:17.763Z",
             "legacy": false,
             "lf_version": "",
             "metadata": {
@@ -3426,382 +3406,6 @@
       },
       {
         "data": {
-          "id": "TypeConverterComponent-79kXp",
-          "node": {
-            "base_classes": [
-              "JSON",
-              "Message",
-              "Table"
-            ],
-            "beta": false,
-            "conditional_paths": [],
-            "custom_fields": {},
-            "description": "Convert between different types (Message, JSON, Table)",
-            "display_name": "Type Convert",
-            "documentation": "https://docs.langflow.org/type-convert",
-            "edited": false,
-            "field_order": [
-              "input_data",
-              "auto_parse",
-              "output_type"
-            ],
-            "frozen": false,
-            "icon": "repeat",
-            "legacy": false,
-            "lf_version": "",
-            "metadata": {
-              "code_hash": "6ce26e994c2d",
-              "dependencies": {
-                "dependencies": [
-                  {
-                    "name": "lfx",
-                    "version": null
-                  },
-                  {
-                    "name": "pandas",
-                    "version": "2.3.3"
-                  }
-                ],
-                "total_dependencies": 2
-              },
-              "module": "lfx.components.processing.converter.TypeConverterComponent"
-            },
-            "minimized": false,
-            "output_types": [],
-            "outputs": [
-              {
-                "allows_loop": false,
-                "cache": true,
-                "display_name": "Message Output",
-                "group_outputs": false,
-                "method": "convert_to_message",
-                "name": "message_output",
-                "selected": "Message",
-                "tool_mode": true,
-                "types": [
-                  "Message"
-                ],
-                "value": "__UNDEFINED__"
-              },
-              {
-                "allows_loop": false,
-                "cache": true,
-                "display_name": "JSON Output",
-                "group_outputs": false,
-                "method": "convert_to_data",
-                "name": "data_output",
-                "tool_mode": true,
-                "types": [
-                  "JSON"
-                ],
-                "value": "__UNDEFINED__"
-              },
-              {
-                "allows_loop": false,
-                "cache": true,
-                "display_name": "Table Output",
-                "group_outputs": false,
-                "method": "convert_to_dataframe",
-                "name": "dataframe_output",
-                "tool_mode": true,
-                "types": [
-                  "Table"
-                ],
-                "value": "__UNDEFINED__"
-              }
-            ],
-            "pinned": false,
-            "template": {
-              "_type": "Component",
-              "auto_parse": {
-                "_input_type": "BoolInput",
-                "advanced": true,
-                "api_editable": false,
-                "display_name": "Auto Parse",
-                "dynamic": false,
-                "info": "Detect and convert JSON/CSV strings automatically.",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "auto_parse",
-                "override_skip": false,
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "track_in_telemetry": true,
-                "type": "bool",
-                "value": false
-              },
-              "code": {
-                "advanced": true,
-                "api_editable": false,
-                "dynamic": true,
-                "fileTypes": [],
-                "file_path": "",
-                "info": "",
-                "list": false,
-                "load_from_db": false,
-                "multiline": true,
-                "name": "code",
-                "password": false,
-                "placeholder": "",
-                "required": true,
-                "show": true,
-                "title_case": false,
-                "type": "code",
-                "value": "import json\nfrom typing import Any\n\nfrom lfx.custom import Component\nfrom lfx.io import BoolInput, HandleInput, Output, TabInput\nfrom lfx.schema import Data, DataFrame, Message\nfrom lfx.schema.data import JSON\nfrom lfx.schema.dataframe import Table\n\nMIN_CSV_LINES = 2\n\n\ndef convert_to_message(v) -> Message:\n    \"\"\"Convert input to Message type.\n\n    Args:\n        v: Input to convert (Message, Data, DataFrame, or dict)\n\n    Returns:\n        Message: Converted Message object\n    \"\"\"\n    return v if isinstance(v, Message) else v.to_message()\n\n\ndef convert_to_data(v: Table | Data | Message | dict, *, auto_parse: bool) -> JSON:\n    \"\"\"Convert input to JSON type.\n\n    Args:\n        v: Input to convert (Message, Data, Table, or dict)\n        auto_parse: Enable automatic parsing of structured data (JSON/CSV)\n\n    Returns:\n        JSON: Converted JSON object\n    \"\"\"\n    if isinstance(v, dict):\n        return Data(v)\n    if isinstance(v, Message):\n        data = Data(data={\"text\": v.data[\"text\"]})\n        return parse_structured_data(data) if auto_parse else data\n\n    return v if isinstance(v, Data) else v.to_data()\n\n\ndef convert_to_dataframe(v: Table | Data | Message | dict, *, auto_parse: bool) -> Table:\n    \"\"\"Convert input to Table type.\n\n    Args:\n        v: Input to convert (Message, Data, Table, or dict)\n        auto_parse: Enable automatic parsing of structured data (JSON/CSV)\n\n    Returns:\n        Table: Converted Table object\n    \"\"\"\n    import pandas as pd\n\n    if isinstance(v, dict):\n        return DataFrame([v])\n    if isinstance(v, DataFrame):\n        return v\n    # Handle pandas DataFrame\n    if isinstance(v, pd.DataFrame):\n        # Convert pandas DataFrame to our DataFrame by creating Data objects\n        return DataFrame(data=v)\n\n    if isinstance(v, Message):\n        data = Data(data={\"text\": v.data[\"text\"]})\n        return parse_structured_data(data).to_dataframe() if auto_parse else data.to_dataframe()\n    # For other types, call to_dataframe method\n    return v.to_dataframe()\n\n\ndef parse_structured_data(data: JSON) -> JSON:\n    \"\"\"Parse structured data (JSON, CSV) from JSON's text field.\n\n    Args:\n        data: JSON object with text content to parse\n\n    Returns:\n        JSON: Modified JSON object with parsed content or original if parsing fails\n    \"\"\"\n    raw_text = data.get_text() or \"\"\n    text = raw_text.lstrip(\"\\ufeff\").strip()\n\n    # Try JSON parsing first\n    parsed_json = _try_parse_json(text)\n    if parsed_json is not None:\n        return parsed_json\n\n    # Try CSV parsing\n    if _looks_like_csv(text):\n        try:\n            return _parse_csv_to_data(text)\n        except Exception:  # noqa: BLE001\n            # Heuristic misfire or malformed CSV — keep original data\n            return data\n\n    # Return original data if no parsing succeeded\n    return data\n\n\ndef _try_parse_json(text: str) -> JSON | None:\n    \"\"\"Try to parse text as JSON and return JSON object.\"\"\"\n    try:\n        parsed = json.loads(text)\n\n        if isinstance(parsed, dict):\n            # Single JSON object\n            return Data(data=parsed)\n        if isinstance(parsed, list) and all(isinstance(item, dict) for item in parsed):\n            # Array of JSON objects - create JSON with the list\n            return Data(data={\"records\": parsed})\n\n    except (json.JSONDecodeError, ValueError):\n        pass\n\n    return None\n\n\ndef _looks_like_csv(text: str) -> bool:\n    \"\"\"Simple heuristic to detect CSV content.\"\"\"\n    lines = text.strip().split(\"\\n\")\n    if len(lines) < MIN_CSV_LINES:\n        return False\n\n    header_line = lines[0]\n    return \",\" in header_line and len(lines) > 1\n\n\ndef _parse_csv_to_data(text: str) -> JSON:\n    \"\"\"Parse CSV text and return JSON object.\"\"\"\n    from io import StringIO\n\n    import pandas as pd\n\n    # Parse CSV to DataFrame, then convert to list of dicts\n    parsed_df = pd.read_csv(StringIO(text))\n    records = parsed_df.to_dict(orient=\"records\")\n\n    return Data(data={\"records\": records})\n\n\nclass TypeConverterComponent(Component):\n    display_name = \"Type Convert\"\n    description = \"Convert between different types (Message, JSON, Table)\"\n    documentation: str = \"https://docs.langflow.org/type-convert\"\n    icon = \"repeat\"\n\n    inputs = [\n        HandleInput(\n            name=\"input_data\",\n            display_name=\"Input\",\n            input_types=[\"Message\", \"Data\", \"JSON\", \"DataFrame\", \"Table\"],\n            info=\"Accept Message, JSON or Table as input\",\n            required=True,\n        ),\n        BoolInput(\n            name=\"auto_parse\",\n            display_name=\"Auto Parse\",\n            info=\"Detect and convert JSON/CSV strings automatically.\",\n            advanced=True,\n            value=False,\n            required=False,\n        ),\n        TabInput(\n            name=\"output_type\",\n            display_name=\"Output Type\",\n            options=[\"Message\", \"JSON\", \"Table\"],\n            info=\"Select the desired output data type\",\n            real_time_refresh=True,\n            value=\"Message\",\n        ),\n    ]\n\n    # Define ALL outputs so they exist during validation\n    # update_frontend_node will filter to show only the selected one\n    outputs = [\n        Output(\n            display_name=\"Message Output\",\n            name=\"message_output\",\n            method=\"convert_to_message\",\n            types=[\"Message\"],\n        ),\n        Output(\n            display_name=\"JSON Output\",\n            name=\"data_output\",\n            method=\"convert_to_data\",\n            types=[\"JSON\"],\n        ),\n        Output(\n            display_name=\"Table Output\",\n            name=\"dataframe_output\",\n            method=\"convert_to_dataframe\",\n            types=[\"Table\"],\n        ),\n    ]\n\n    async def update_frontend_node(self, new_frontend_node: dict, current_frontend_node: dict):\n        \"\"\"Ensure outputs are synced with output_type when component is loaded.\"\"\"\n        # Call parent implementation first\n        await super().update_frontend_node(new_frontend_node, current_frontend_node)\n\n        # Then sync outputs with current output_type value\n        output_type = new_frontend_node.get(\"template\", {}).get(\"output_type\", {}).get(\"value\", \"Message\")\n        self.update_outputs(new_frontend_node, \"output_type\", output_type)\n\n        return new_frontend_node\n\n    def update_outputs(self, frontend_node: dict, field_name: str, field_value: Any) -> dict:\n        \"\"\"Dynamically show only the relevant output based on the selected output type.\"\"\"\n        if field_name == \"output_type\":\n            # Start with empty outputs\n            frontend_node[\"outputs\"] = []\n\n            # Add only the selected output type WITH TYPES SPECIFIED\n            if field_value == \"Message\":\n                frontend_node[\"outputs\"].append(\n                    Output(\n                        display_name=\"Message Output\",\n                        name=\"message_output\",\n                        method=\"convert_to_message\",\n                        types=[\"Message\"],\n                    ).to_dict()\n                )\n            elif field_value in (\"Data\", \"JSON\"):\n                frontend_node[\"outputs\"].append(\n                    Output(\n                        display_name=\"JSON Output\",\n                        name=\"data_output\",\n                        method=\"convert_to_data\",\n                        types=[\"JSON\"],\n                    ).to_dict()\n                )\n            elif field_value in (\"DataFrame\", \"Table\"):\n                frontend_node[\"outputs\"].append(\n                    Output(\n                        display_name=\"Table Output\",\n                        name=\"dataframe_output\",\n                        method=\"convert_to_dataframe\",\n                        types=[\"Table\"],\n                    ).to_dict()\n                )\n\n        return frontend_node\n\n    def convert_to_message(self) -> Message:\n        \"\"\"Convert input to Message type.\"\"\"\n        input_value = self.input_data[0] if isinstance(self.input_data, list) else self.input_data\n\n        # Handle string input by converting to Message first\n        if isinstance(input_value, str):\n            input_value = Message(text=input_value)\n\n        result = convert_to_message(input_value)\n        self.status = result\n        return result\n\n    def convert_to_data(self) -> JSON:\n        \"\"\"Convert input to JSON type.\"\"\"\n        input_value = self.input_data[0] if isinstance(self.input_data, list) else self.input_data\n\n        # Handle string input by converting to Message first\n        if isinstance(input_value, str):\n            input_value = Message(text=input_value)\n\n        result = convert_to_data(input_value, auto_parse=self.auto_parse)\n        self.status = result\n        return result\n\n    def convert_to_dataframe(self) -> Table:\n        \"\"\"Convert input to Table type.\"\"\"\n        input_value = self.input_data[0] if isinstance(self.input_data, list) else self.input_data\n\n        # Handle string input by converting to Message first\n        if isinstance(input_value, str):\n            input_value = Message(text=input_value)\n\n        result = convert_to_dataframe(input_value, auto_parse=self.auto_parse)\n        self.status = result\n        return result\n"
-              },
-              "input_data": {
-                "_input_type": "HandleInput",
-                "advanced": false,
-                "api_editable": false,
-                "display_name": "Input",
-                "dynamic": false,
-                "info": "Accept Message, JSON or Table as input",
-                "input_types": [
-                  "Message",
-                  "Data",
-                  "JSON",
-                  "DataFrame",
-                  "Table"
-                ],
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "input_data",
-                "override_skip": false,
-                "placeholder": "",
-                "required": true,
-                "show": true,
-                "title_case": false,
-                "trace_as_metadata": true,
-                "track_in_telemetry": false,
-                "type": "other",
-                "value": ""
-              },
-              "output_type": {
-                "_input_type": "TabInput",
-                "advanced": false,
-                "api_editable": false,
-                "display_name": "Output Type",
-                "dynamic": false,
-                "info": "Select the desired output data type",
-                "name": "output_type",
-                "options": [
-                  "Message",
-                  "JSON",
-                  "Table"
-                ],
-                "override_skip": false,
-                "placeholder": "",
-                "real_time_refresh": true,
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "track_in_telemetry": true,
-                "type": "tab",
-                "value": "Message"
-              }
-            },
-            "tool_mode": false
-          },
-          "selected_output": "message_output",
-          "showNode": true,
-          "type": "TypeConverterComponent"
-        },
-        "dragging": false,
-        "id": "TypeConverterComponent-79kXp",
-        "measured": {
-          "height": 265,
-          "width": 320
-        },
-        "position": {
-          "x": 3420.775759512274,
-          "y": 886.9585064210374
-        },
-        "selected": false,
-        "type": "genericNode"
-      },
-      {
-        "data": {
-          "id": "ext:google:GoogleSerperAPICore@official-LHX7U",
-          "node": {
-            "base_classes": [
-              "Table"
-            ],
-            "beta": false,
-            "bundle": "google",
-            "conditional_paths": [],
-            "custom_fields": {},
-            "description": "Call the Serper.dev Google Search API.",
-            "display_name": "Google Serper API",
-            "documentation": "",
-            "edited": false,
-            "extension": "lfx-google",
-            "extension_version": "0.1.2",
-            "field_order": [
-              "serper_api_key",
-              "input_value",
-              "k"
-            ],
-            "frozen": false,
-            "icon": "Serper",
-            "legacy": false,
-            "lf_version": "",
-            "metadata": {
-              "code_hash": "6abab69ee4c2",
-              "dependencies": {
-                "dependencies": [
-                  {
-                    "name": "langchain_community",
-                    "version": "0.4.2"
-                  },
-                  {
-                    "name": "lfx",
-                    "version": "1.12.2"
-                  }
-                ],
-                "total_dependencies": 2
-              },
-              "module": "_lfx_ext.official.google.google_serper_api_core"
-            },
-            "minimized": false,
-            "name": "GoogleSerperAPICore",
-            "namespaced_id": "ext:google:GoogleSerperAPICore@official",
-            "output_types": [],
-            "outputs": [
-              {
-                "allows_loop": false,
-                "cache": true,
-                "display_name": "Results",
-                "group_outputs": false,
-                "method": "search_serper",
-                "name": "results",
-                "selected": "Table",
-                "tool_mode": true,
-                "types": [
-                  "Table"
-                ],
-                "value": "__UNDEFINED__"
-              }
-            ],
-            "pinned": false,
-            "template": {
-              "_type": "Component",
-              "code": {
-                "advanced": true,
-                "api_editable": false,
-                "dynamic": true,
-                "fileTypes": [],
-                "file_path": "",
-                "info": "",
-                "list": false,
-                "load_from_db": false,
-                "multiline": true,
-                "name": "code",
-                "password": false,
-                "placeholder": "",
-                "required": true,
-                "show": true,
-                "title_case": false,
-                "type": "code",
-                "value": "from langchain_community.utilities.google_serper import GoogleSerperAPIWrapper\nfrom lfx.custom.custom_component.component import Component\nfrom lfx.io import IntInput, MultilineInput, Output, SecretStrInput\nfrom lfx.schema.dataframe import DataFrame\nfrom lfx.schema.message import Message\n\n\nclass GoogleSerperAPICore(Component):\n    display_name = \"Google Serper API\"\n    description = \"Call the Serper.dev Google Search API.\"\n    icon = \"Serper\"\n\n    inputs = [\n        SecretStrInput(\n            name=\"serper_api_key\",\n            display_name=\"Serper API Key\",\n            required=True,\n        ),\n        MultilineInput(\n            name=\"input_value\",\n            display_name=\"Input\",\n            tool_mode=True,\n        ),\n        IntInput(\n            name=\"k\",\n            display_name=\"Number of results\",\n            value=4,\n            required=True,\n        ),\n    ]\n\n    outputs = [\n        Output(\n            display_name=\"Results\",\n            name=\"results\",\n            type_=DataFrame,\n            method=\"search_serper\",\n        ),\n    ]\n\n    def search_serper(self) -> DataFrame:\n        try:\n            wrapper = self._build_wrapper()\n            results = wrapper.results(query=self.input_value)\n            list_results = results.get(\"organic\", [])\n\n            # Convert results to DataFrame using list comprehension\n            df_data = [\n                {\n                    \"title\": result.get(\"title\", \"\"),\n                    \"link\": result.get(\"link\", \"\"),\n                    \"snippet\": result.get(\"snippet\", \"\"),\n                }\n                for result in list_results\n            ]\n\n            return DataFrame(df_data)\n        except (ValueError, KeyError, ConnectionError) as e:\n            error_message = f\"Error occurred while searching: {e!s}\"\n            self.status = error_message\n            # Return DataFrame with error as a list of dictionaries\n            return DataFrame([{\"error\": error_message}])\n\n    def text_search_serper(self) -> Message:\n        search_results = self.search_serper()\n        text_result = search_results.to_string(index=False) if not search_results.empty else \"No results found.\"\n        return Message(text=text_result)\n\n    def _build_wrapper(self):\n        return GoogleSerperAPIWrapper(serper_api_key=self.serper_api_key, k=self.k)\n\n    def build(self):\n        return self.search_serper\n"
-              },
-              "input_value": {
-                "_input_type": "MultilineInput",
-                "advanced": false,
-                "ai_enabled": false,
-                "api_editable": false,
-                "copy_field": false,
-                "display_name": "Input",
-                "dynamic": false,
-                "info": "",
-                "input_types": [
-                  "Message"
-                ],
-                "list": false,
-                "list_add_label": "Add More",
-                "load_from_db": false,
-                "multiline": true,
-                "name": "input_value",
-                "override_skip": false,
-                "password": false,
-                "placeholder": "",
-                "required": false,
-                "show": true,
-                "title_case": false,
-                "tool_mode": true,
-                "trace_as_input": true,
-                "trace_as_metadata": true,
-                "track_in_telemetry": false,
-                "type": "str",
-                "value": "harga laptop printer kertas tinta flashdisk original tokopedia shopee lazada blibli 2026"
-              },
-              "k": {
-                "_input_type": "IntInput",
-                "advanced": false,
-                "api_editable": false,
-                "display_name": "Number of results",
-                "dynamic": false,
-                "info": "",
-                "list": false,
-                "list_add_label": "Add More",
-                "name": "k",
-                "override_skip": false,
-                "placeholder": "",
-                "required": true,
-                "show": true,
-                "title_case": false,
-                "tool_mode": false,
-                "trace_as_metadata": true,
-                "track_in_telemetry": true,
-                "type": "int",
-                "value": 10
-              },
-              "serper_api_key": {
-                "_input_type": "SecretStrInput",
-                "advanced": false,
-                "api_editable": false,
-                "display_name": "Serper API Key",
-                "dynamic": false,
-                "info": "",
-                "input_types": [],
-                "load_from_db": false,
-                "name": "serper_api_key",
-                "override_skip": false,
-                "password": true,
-                "placeholder": "",
-                "required": true,
-                "show": true,
-                "title_case": false,
-                "track_in_telemetry": false,
-                "type": "str",
-                "value": ""
-              }
-            },
-            "tool_mode": false
-          },
-          "showNode": true,
-          "type": "ext:google:GoogleSerperAPICore@official"
-        },
-        "dragging": false,
-        "id": "ext:google:GoogleSerperAPICore@official-LHX7U",
-        "measured": {
-          "height": 371,
-          "width": 320
-        },
-        "position": {
-          "x": 2688.870466274851,
-          "y": 875.8220702783206
-        },
-        "selected": false,
-        "type": "genericNode"
-      },
-      {
-        "data": {
           "id": "CustomComponent-1p4hg",
           "node": {
             "base_classes": [
@@ -3950,9 +3554,9 @@
       }
     ],
     "viewport": {
-      "x": -10.023804242669826,
-      "y": 161.80126320061123,
-      "zoom": 0.4360121827926206
+      "x": 140.70844441032955,
+      "y": 380.3991057153203,
+      "zoom": 0.48632747370614204
     }
   },
   "description": "Promptly Ingenious!",

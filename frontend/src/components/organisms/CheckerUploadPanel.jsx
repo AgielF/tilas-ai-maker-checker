@@ -9,6 +9,15 @@ const DOCUMENTS = [
   { key: 'taxInvoiceFile', title: 'Faktur Pajak', required: false },
 ];
 
+const FILE_UPLOADER_PROPS = {
+  accept: ".pdf,.xlsx,.xls,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel",
+  acceptExtensions: [".pdf", ".xlsx", ".xls"],
+  acceptLabel: "PDF atau Excel",
+  dropzoneText: "Drag & drop PDF atau Excel atau klik untuk pilih",
+  sizeText: "PDF atau Excel · maks. 10 MB",
+  errorInvalidFormat: "File harus berformat PDF atau Excel.",
+};
+
 function DocumentUploadGroup({ title, required, file, error, onFile, onRemove, onError, disabled }) {
   return (
     <section className="flex flex-col gap-3 border border-[var(--border-dark)] bg-surface p-4">
@@ -18,7 +27,7 @@ function DocumentUploadGroup({ title, required, file, error, onFile, onRemove, o
           'text-[10px] font-semibold uppercase tracking-wider',
           required ? 'text-sev-high' : 'text-[var(--color-text-mute)]',
         ].join(' ')}>
-          {required ? 'Wajib' : 'Opsional'}
+          {required ? 'Wajib (PDF/Excel)' : 'Opsional (PDF/Excel)'}
         </span>
       </div>
       <FileUploader
@@ -28,6 +37,7 @@ function DocumentUploadGroup({ title, required, file, error, onFile, onRemove, o
         onError={onError}
         disabled={disabled}
         error={error}
+        {...FILE_UPLOADER_PROPS}
       />
     </section>
   );
@@ -126,7 +136,7 @@ function CheckerUploadPanel({ onSubmit, loading = false, error: submitError = nu
 
       {!hasRequiredFiles && (
         <p className="text-xs text-[var(--color-text-inv-mute)]">
-          Unggah PO, Goods Receipt, dan Invoice untuk melanjutkan. Faktur Pajak bersifat opsional.
+          Unggah PO, Goods Receipt, dan Invoice (PDF atau Excel) untuk melanjutkan. Faktur Pajak bersifat opsional.
         </p>
       )}
       {submitError && (

@@ -88,20 +88,26 @@ export default function MakerPage() {
             />
           </div>
 
-          {/* File upload */}
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-[var(--color-text-inv)]">
-              Dokumen Penawaran (PDF)
-            </span>
-            <FileUploader
-              file={file}
-              onFile={handleFileSelect}
-              onRemove={handleRemoveFile}
-              onError={handleFileError}
-              disabled={loading}
-              error={fileError}
-            />
-          </div>
+{/* File upload */}
+           <div className="flex flex-col gap-1">
+             <span className="text-sm font-medium text-[var(--color-text-inv)]">
+               Dokumen Penawaran (PDF atau Excel)
+             </span>
+             <FileUploader
+               file={file}
+               onFile={handleFileSelect}
+               onRemove={handleRemoveFile}
+               onError={handleFileError}
+               disabled={loading}
+               error={fileError}
+               accept=".pdf,.xlsx,.xls,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+               acceptExtensions={[".pdf", ".xlsx", ".xls"]}
+               acceptLabel="PDF atau Excel"
+               dropzoneText="Drag & drop PDF atau Excel atau klik untuk pilih"
+               sizeText="PDF atau Excel · maks. 10 MB"
+               errorInvalidFormat="File harus berformat PDF atau Excel."
+             />
+           </div>
 
           <div className="flex justify-end">
             <Button

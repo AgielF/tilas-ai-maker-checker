@@ -848,7 +848,7 @@
             ],
             "frozen": false,
             "icon": "file-text",
-            "last_updated": "2026-10-06T00:12:43.238Z",
+            "last_updated": "2026-10-07T23:22:36.838Z",
             "legacy": false,
             "lf_version": "1.12.2",
             "metadata": {
@@ -888,24 +888,6 @@
                 "loop_types": null,
                 "method": "load_files_message",
                 "name": "message",
-                "options": null,
-                "required_inputs": null,
-                "selected": "Message",
-                "tool_mode": true,
-                "types": [
-                  "Message"
-                ],
-                "value": "__UNDEFINED__"
-              },
-              {
-                "allows_loop": false,
-                "cache": true,
-                "display_name": "File Path",
-                "group_outputs": false,
-                "hidden": null,
-                "loop_types": null,
-                "method": "load_files_path",
-                "name": "path",
                 "options": null,
                 "required_inputs": null,
                 "selected": "Message",
@@ -1375,9 +1357,7 @@
                   "bz2",
                   "gz"
                 ],
-                "file_path": [
-                  "aadfd41d-c038-4bb3-808b-9ef981dc6aa6/sample-po.pdf"
-                ],
+                "file_path": [],
                 "info": "Supported file extensions: csv, json, pdf, txt, md, mdx, yaml, yml, xml, html, htm, docx, py, sh, sql, js, ts, tsx, adoc, asciidoc, asc, bmp, dotx, dotm, docm, jpg, jpeg, png, potx, ppsx, pptm, potm, ppsm, pptx, tiff, xls, xlsx, xhtml, webp; optionally bundled in file extensions: zip, tar, tgz, bz2, gz",
                 "list": true,
                 "list_add_label": "Add More",
@@ -1581,14 +1561,14 @@
         "dragging": false,
         "id": "File-4YBTZ",
         "measured": {
-          "height": 263,
+          "height": 259,
           "width": 320
         },
         "position": {
           "x": -680.4182553423955,
           "y": 569.9482039752057
         },
-        "selected": false,
+        "selected": true,
         "type": "genericNode"
       },
       {
@@ -1623,7 +1603,7 @@
             ],
             "frozen": false,
             "icon": "brain-circuit",
-            "last_updated": "2026-10-06T00:12:43.244Z",
+            "last_updated": "2026-10-07T23:22:29.632Z",
             "legacy": false,
             "lf_version": "1.12.2",
             "metadata": {
@@ -2606,7 +2586,7 @@
             ],
             "frozen": false,
             "icon": "file-text",
-            "last_updated": "2026-10-06T00:12:43.245Z",
+            "last_updated": "2026-10-07T23:22:37.193Z",
             "legacy": false,
             "lf_version": "1.12.2",
             "metadata": {
@@ -2646,24 +2626,6 @@
                 "loop_types": null,
                 "method": "load_files_message",
                 "name": "message",
-                "options": null,
-                "required_inputs": null,
-                "selected": "Message",
-                "tool_mode": true,
-                "types": [
-                  "Message"
-                ],
-                "value": "__UNDEFINED__"
-              },
-              {
-                "allows_loop": false,
-                "cache": true,
-                "display_name": "File Path",
-                "group_outputs": false,
-                "hidden": null,
-                "loop_types": null,
-                "method": "load_files_path",
-                "name": "path",
                 "options": null,
                 "required_inputs": null,
                 "selected": "Message",
@@ -3133,9 +3095,7 @@
                   "bz2",
                   "gz"
                 ],
-                "file_path": [
-                  "aadfd41d-c038-4bb3-808b-9ef981dc6aa6/sample-invoice.pdf"
-                ],
+                "file_path": [],
                 "info": "Supported file extensions: csv, json, pdf, txt, md, mdx, yaml, yml, xml, html, htm, docx, py, sh, sql, js, ts, tsx, adoc, asciidoc, asc, bmp, dotx, dotm, docm, jpg, jpeg, png, potx, ppsx, pptm, potm, ppsm, pptx, tiff, xls, xlsx, xhtml, webp; optionally bundled in file extensions: zip, tar, tgz, bz2, gz",
                 "list": true,
                 "list_add_label": "Add More",
@@ -3339,7 +3299,7 @@
         "dragging": false,
         "id": "File-isZus",
         "measured": {
-          "height": 263,
+          "height": 259,
           "width": 320
         },
         "position": {
@@ -3392,7 +3352,7 @@
             ],
             "frozen": false,
             "icon": "file-text",
-            "last_updated": "2026-10-06T00:12:43.247Z",
+            "last_updated": "2026-10-07T23:22:36.845Z",
             "legacy": false,
             "lf_version": "1.12.2",
             "metadata": {
@@ -3432,24 +3392,6 @@
                 "loop_types": null,
                 "method": "load_files_message",
                 "name": "message",
-                "options": null,
-                "required_inputs": null,
-                "selected": "Message",
-                "tool_mode": true,
-                "types": [
-                  "Message"
-                ],
-                "value": "__UNDEFINED__"
-              },
-              {
-                "allows_loop": false,
-                "cache": true,
-                "display_name": "File Path",
-                "group_outputs": false,
-                "hidden": null,
-                "loop_types": null,
-                "method": "load_files_path",
-                "name": "path",
                 "options": null,
                 "required_inputs": null,
                 "selected": "Message",
@@ -3919,9 +3861,7 @@
                   "bz2",
                   "gz"
                 ],
-                "file_path": [
-                  "aadfd41d-c038-4bb3-808b-9ef981dc6aa6/sample-gr.pdf"
-                ],
+                "file_path": [],
                 "info": "Supported file extensions: csv, json, pdf, txt, md, mdx, yaml, yml, xml, html, htm, docx, py, sh, sql, js, ts, tsx, adoc, asciidoc, asc, bmp, dotx, dotm, docm, jpg, jpeg, png, potx, ppsx, pptm, potm, ppsm, pptx, tiff, xls, xlsx, xhtml, webp; optionally bundled in file extensions: zip, tar, tgz, bz2, gz",
                 "list": true,
                 "list_add_label": "Add More",
@@ -4125,7 +4065,7 @@
         "dragging": false,
         "id": "File-wspdD",
         "measured": {
-          "height": 263,
+          "height": 259,
           "width": 320
         },
         "position": {
@@ -4178,7 +4118,7 @@
             ],
             "frozen": false,
             "icon": "file-text",
-            "last_updated": "2026-10-06T00:12:43.252Z",
+            "last_updated": "2026-10-07T23:22:36.848Z",
             "legacy": false,
             "lf_version": "1.12.2",
             "metadata": {
@@ -4218,24 +4158,6 @@
                 "loop_types": null,
                 "method": "load_files_message",
                 "name": "message",
-                "options": null,
-                "required_inputs": null,
-                "selected": "Message",
-                "tool_mode": true,
-                "types": [
-                  "Message"
-                ],
-                "value": "__UNDEFINED__"
-              },
-              {
-                "allows_loop": false,
-                "cache": true,
-                "display_name": "File Path",
-                "group_outputs": false,
-                "hidden": null,
-                "loop_types": null,
-                "method": "load_files_path",
-                "name": "path",
                 "options": null,
                 "required_inputs": null,
                 "selected": "Message",
@@ -4705,9 +4627,7 @@
                   "bz2",
                   "gz"
                 ],
-                "file_path": [
-                  "aadfd41d-c038-4bb3-808b-9ef981dc6aa6/sample-faktur-pajak.pdf"
-                ],
+                "file_path": [],
                 "info": "Supported file extensions: csv, json, pdf, txt, md, mdx, yaml, yml, xml, html, htm, docx, py, sh, sql, js, ts, tsx, adoc, asciidoc, asc, bmp, dotx, dotm, docm, jpg, jpeg, png, potx, ppsx, pptm, potm, ppsm, pptx, tiff, xls, xlsx, xhtml, webp; optionally bundled in file extensions: zip, tar, tgz, bz2, gz",
                 "list": true,
                 "list_add_label": "Add More",
@@ -4911,7 +4831,7 @@
         "dragging": false,
         "id": "File-zkJmE",
         "measured": {
-          "height": 263,
+          "height": 259,
           "width": 320
         },
         "position": {
@@ -4923,9 +4843,9 @@
       }
     ],
     "viewport": {
-      "x": 435.88872078653077,
-      "y": 243.43316907963072,
-      "zoom": 0.5984652588587704
+      "x": 776.3975270968091,
+      "y": 365.2431044515016,
+      "zoom": 0.4172281287628503
     }
   },
   "description": "Graph Your Way to Great Conversations.",

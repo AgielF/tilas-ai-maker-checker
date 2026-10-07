@@ -190,7 +190,7 @@ export default function CheckerPage() {
           </label>
           <TabSwitch
             tabs={[
-              { id: 'upload', label: 'Upload PDF' },
+              { id: 'upload', label: 'Upload PDF/Excel' },
               { id: 'manual', label: 'Input Manual' },
             ]}
             activeId={activeTab}

@@ -6,6 +6,7 @@ import json
 import os
 import re
 import time
+import uuid
 from pathlib import Path
 
 import httpx
@@ -223,6 +224,7 @@ async def extract_all_pdf_documents(
                         "input_value": "Ekstrak semua dokumen pengadaan",
                         "input_type": "chat",
                         "output_type": "chat",
+                        "session_id": str(uuid.uuid4()),
                         "tweaks": tweaks,
                     },
                 )
@@ -362,6 +364,7 @@ async def extract_pdf_document(
                 "input_value": "Ekstrak data dari dokumen ini",
                 "input_type": "chat",
                 "output_type": "chat",
+                "session_id": str(uuid.uuid4()),
                 "tweaks": tweaks,
             },
         )

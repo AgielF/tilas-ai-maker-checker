@@ -404,6 +404,7 @@ class ProcurementService:
                         "input_value": prompt,
                         "input_type": "chat",
                         "output_type": "chat",
+                        "session_id": str(uuid.uuid4()),
                     },
                 )
         except httpx.TimeoutException as exc:
@@ -545,7 +546,7 @@ class ProcurementService:
                 log.info(
                     "langflow_file_uploaded",
                     flow_id=flow_id,
-                    filename=file.filename,
+                    filename=upload_filename,
                     file_path=file_path,
                 )
 
@@ -568,6 +569,7 @@ class ProcurementService:
                         "input_value": user_instruksi,
                         "input_type": "chat",
                         "output_type": "chat",
+                        "session_id": str(uuid.uuid4()),
                         "tweaks": {
                             "File-bHzNP": {"file_path": file_path},
                         },
