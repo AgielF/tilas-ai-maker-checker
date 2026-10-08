@@ -45,6 +45,7 @@ from timbang.shared.core.exceptions import (
     UpstreamError,
     ValidationError,
 )
+from timbang.shared.langflow.flow_meta import build_tweaks
 from timbang.shared.parsers.excel import (
     excel_to_csv_text,
 )
@@ -394,6 +395,8 @@ class ProcurementService:
         if settings.langflow_api_key:
             headers["x-api-key"] = settings.langflow_api_key  # only if configured
 
+        sid, tweaks = build_tweaks("maker_agent.json")
+
         t0 = time.monotonic()
         try:
             async with httpx.AsyncClient(timeout=settings.langflow_timeout_seconds) as client:
@@ -404,7 +407,8 @@ class ProcurementService:
                         "input_value": prompt,
                         "input_type": "chat",
                         "output_type": "chat",
-                        "session_id": str(uuid.uuid4()),
+                        "session_id": sid,
+                        "tweaks": tweaks,
                     },
                 )
         except httpx.TimeoutException as exc:
@@ -558,21 +562,27 @@ class ProcurementService:
                         "dalam dokumen penawaran vendor ini."
                     )
 
-                # 5. Run flow with file_path tweak
+                # 5. Run flow with file_path tweak + cache isolation
+                sid, tweaks = build_tweaks(
+                    "maker_agent.json",
+                    file_paths={"File-bHzNP": file_path},
+                )
                 run_url = f"{settings.langflow_base_url}/api/v1/run/{flow_id}"
                 t0 = time.monotonic()
+                log.info(
+                    "langflow_payload",
+                    session_id=sid,
+                    tweaks_keys=list(tweaks.keys()),
+                )
                 run_resp = await client.post(
                     run_url,
                     headers={**headers, "Content-Type": "application/json"},
                     json={
-                        # input_value feeds ChatInput — do NOT repeat it in tweaks
                         "input_value": user_instruksi,
                         "input_type": "chat",
                         "output_type": "chat",
-                        "session_id": str(uuid.uuid4()),
-                        "tweaks": {
-                            "File-bHzNP": {"file_path": file_path},
-                        },
+                        "session_id": sid,
+                        "tweaks": tweaks,
                     },
                 )
         except httpx.TimeoutException as exc:
