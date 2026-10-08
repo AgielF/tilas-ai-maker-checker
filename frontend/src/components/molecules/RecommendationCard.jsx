@@ -52,29 +52,45 @@ function StatusBadge({ value }) {
 
 // ── Sub-sections ──────────────────────────────────────────────────────────────
 
-/** Math check warning banner — shown only for CRITICAL or WARNING status */
+/** Math check banner — CRITICAL/WARNING (alert), INFO (informational) */
 function MathCheckBanner({ kesimpulan }) {
   if (!kesimpulan) return null;
   const status = kesimpulan.math_check_status;
-  if (status !== 'CRITICAL' && status !== 'WARNING') return null;
+  if (status !== 'CRITICAL' && status !== 'WARNING' && status !== 'INFO') return null;
 
   const isCritical = status === 'CRITICAL';
+  const isWarning = status === 'WARNING';
+  const isInfo = status === 'INFO';
+
+  const tone = isCritical
+    ? { bg: 'bg-sev-critical/5', border: 'border-sev-critical', text: 'text-sev-critical' }
+    : isWarning
+    ? { bg: 'bg-amber/5', border: 'border-amber', text: 'text-amber' }
+    : { bg: 'bg-electric/5', border: 'border-electric', text: 'text-electric' };
+
+  const title = isCritical
+    ? 'Inkonsistensi Matematis Terdeteksi'
+    : isWarning
+    ? 'Peringatan Inkonsistensi'
+    : 'Catatan Selisih Total';
+
+  const iconName = 'alert-triangle';
+
   return (
     <div
       className={[
         'flex items-start gap-3 p-4 border-l-4 rounded-r',
-        isCritical
-          ? 'bg-critical/5 border-critical'
-          : 'bg-warning/5 border-warning',
+        tone.bg,
+        tone.border,
       ].join(' ')}
-      role="alert"
+      role={isInfo ? 'note' : 'alert'}
     >
-      <span className={`mt-0.5 flex-shrink-0 ${isCritical ? 'text-critical' : 'text-warning'}`}>
-        <Icon name="alert-triangle" size={18} strokeWidth={2} />
+      <span className={`mt-0.5 flex-shrink-0 ${tone.text}`}>
+        <Icon name={iconName} size={18} strokeWidth={2} />
       </span>
       <div className="flex flex-col gap-0.5">
-        <span className={`text-sm font-semibold leading-tight ${isCritical ? 'text-critical' : 'text-warning'}`}>
-          {isCritical ? 'Inkonsistensi Matematis Terdeteksi' : 'Peringatan Inkonsistensi'}
+        <span className={`text-sm font-semibold leading-tight ${tone.text}`}>
+          {title}
         </span>
         {kesimpulan.math_check_note && (
           <span className="text-xs text-[var(--color-text-inv-mute)] leading-relaxed">
@@ -118,7 +134,7 @@ function HeroStats({ kesimpulan, items = [], mode = 'penawaran' }) {
           </span>
           <span
             className={`font-mono tabular-nums text-2xl font-bold ${
-              withoutMarket > 0 ? 'text-warning' : 'text-emerald'
+              withoutMarket > 0 ? 'text-amber' : 'text-emerald'
             }`}
           >
             {withoutMarket}
@@ -176,8 +192,8 @@ function HeroStats({ kesimpulan, items = [], mode = 'penawaran' }) {
               skor >= 80
                 ? 'text-emerald'
                 : skor >= 50
-                ? 'text-warning'
-                : 'text-critical'
+                ? 'text-amber'
+                : 'text-sev-critical'
             }`}
           >
             {skor}/100

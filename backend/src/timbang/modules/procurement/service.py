@@ -66,6 +66,40 @@ _MARKDOWN_FENCE_RE = re.compile(r"```(?:json)?\s*(.+?)\s*```", re.DOTALL)
 # Catatan: {{ dan }} di source ini akan menjadi { dan } literal setelah
 # f-string rendering oleh Langflow Prompt Template. Placeholder valid
 # hanya {chat-input} dan {file}.
+_MAKER_PROMPT_PENAWARAN = """Kamu adalah asisten pengadaan. Tugasmu mengekstrak informasi dari dokumen penawaran vendor berikut.
+
+Instruksi user: {chat-input}
+
+Isi Dokumen:
+{file}
+
+Ekstrak dalam format JSON:
+{{
+  "vendor_name": "nama vendor",
+  "vendor_contact": "email/telepon kalau ada",
+  "vendor_address": "alamat kalau ada",
+  "items": [
+    {{
+      "nama_item": "nama item lengkap",
+      "qty": 5,
+      "satuan": "unit/pcs/rim/box",
+      "harga_vendor": 9750000,
+      "total_price_vendor": 48750000
+    }}
+  ],
+  "total_penawaran": 75000000,
+  "terms": "syarat pembayaran kalau ada"
+}}
+
+ATURAN PENTING:
+1. Kolom items HANYA berisi barang/jasa. JANGAN masukkan baris Subtotal, PPN, 
+   Pajak, Diskon, Ongkir, atau TOTAL sebagai item.
+2. total_penawaran = sum dari items[].total_price_vendor (SEBELUM PPN/diskon/ongkir).
+   JANGAN ambil dari baris TOTAL dokumen yang mungkin sudah termasuk PPN.
+3. harga_vendor = harga satuan. total_price_vendor = qty × harga_vendor.
+4. Output HANYA JSON murni. Tidak ada teks pembuka atau penutup."""
+
+
 _MAKER_PROMPT_BON = """Kamu adalah asisten pengadaan. Tugasmu mengekstrak informasi dari BON PERMINTAAN BARANG berikut.
 
 BON Permintaan Barang = daftar item yang MAU DIBELI. Belum ada vendor, belum ada harga. Fokus ke nama item, qty, satuan, dan keterangan.
@@ -297,7 +331,15 @@ def _apply_math_check(response: RecommendationResponse) -> RecommendationRespons
     k.math_discrepancy_percent = round(percent, 4)
 
     abs_pct = abs(percent)
-    if abs_pct > 5.0:
+    if 9.0 <= abs_pct <= 13.0:
+        # Kemungkinan besar PPN 11% (Indonesia standard) atau pajak lain
+        # yang di-include di total_penawaran tapi bukan bagian dari items[].
+        k.math_check_status = "INFO"
+        k.math_check_note = (
+            f"Selisih {percent:.2f}% (Rp {discrepancy:,.0f}) kemungkinan PPN/pajak — "
+            f"bukan inkonsistensi."
+        )
+    elif abs_pct > 5.0:
         k.math_check_status = "CRITICAL"
         k.math_check_note = (
             f"Ditemukan inkonsistensi matematis {percent:.2f}% (Rp {discrepancy:,.0f}) "
@@ -646,6 +688,13 @@ class ProcurementService:
                     # qty/satuan BON).
                     tweaks["Prompt Template-J026A"] = {
                         "template": _MAKER_PROMPT_BON,
+                    }
+                else:
+                    # Mode penawaran: override juga agar total_penawaran
+                    # = sum(items) tanpa PPN, menghindari false positive
+                    # di math check.
+                    tweaks["Prompt Template-J026A"] = {
+                        "template": _MAKER_PROMPT_PENAWARAN,
                     }
                 run_url = f"{settings.langflow_base_url}/api/v1/run/{flow_id}"
                 t0 = time.monotonic()
