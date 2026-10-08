@@ -6,7 +6,6 @@ import json
 import os
 import re
 import time
-import uuid
 from pathlib import Path
 
 import httpx
@@ -16,6 +15,7 @@ from fastapi import UploadFile
 from timbang.modules.audit.schemas import DocumentExtraction, MultiDocumentExtraction
 from timbang.shared.core.config import get_settings
 from timbang.shared.core.exceptions import UpstreamError, ValidationError
+from timbang.shared.langflow.flow_meta import build_tweaks
 from timbang.shared.parsers.excel import excel_to_csv_text
 from timbang.shared.schemas.document import DocumentType, ExtractedItem, ParsedDocument
 
@@ -211,20 +211,37 @@ async def extract_all_pdf_documents(
                 uploaded_paths[document_key] = file_path
 
             file_node_keys = _get_file_node_keys()
-            tweaks = {
-                file_node_keys[document_key]: {"file_path": file_path}
+            fallback_path = next(iter(uploaded_paths.values()))
+            file_paths_for_tweaks = {
+                file_node_keys[document_key]: file_path
                 for document_key, file_path in uploaded_paths.items()
             }
+            missing_slots = [k for k in file_node_keys if k not in uploaded_paths]
+            for slot in missing_slots:
+                file_paths_for_tweaks[file_node_keys[slot]] = fallback_path
+
+            input_value = "Ekstrak semua dokumen pengadaan"
+            if missing_slots:
+                input_value += (
+                    " Dokumen berikut TIDAK disediakan oleh user: "
+                    + ", ".join(missing_slots)
+                    + ". Isi field terkait dengan null/kosong, jangan halusinasi."
+                )
+
             started_at = time.monotonic()
+            sid, tweaks = build_tweaks(
+                "checker_agent.json",
+                input_value=input_value,
+                file_paths=file_paths_for_tweaks,
+            )
             try:
                 run_response = await client.post(
                     f"{settings.langflow_base_url}/api/v1/run/{flow_id}",
                     headers={**headers, "Content-Type": "application/json"},
                     json={
-                        "input_value": "Ekstrak semua dokumen pengadaan",
                         "input_type": "chat",
                         "output_type": "chat",
-                        "session_id": str(uuid.uuid4()),
+                        "session_id": sid,
                         "tweaks": tweaks,
                     },
                 )
@@ -355,7 +372,10 @@ async def extract_pdf_document(
         except (json.JSONDecodeError, KeyError, TypeError) as exc:
             raise UpstreamError("Langflow upload response tidak memiliki file_path.") from exc
 
-        tweaks = {"File-bHzNP": {"file_path": file_path}}
+        sid, tweaks = build_tweaks(
+            "maker_agent.json",
+            file_paths={"File-bHzNP": file_path},
+        )
 
         run_response = await client.post(
             f"{settings.langflow_base_url}/api/v1/run/{flow_id}",
@@ -364,7 +384,7 @@ async def extract_pdf_document(
                 "input_value": "Ekstrak data dari dokumen ini",
                 "input_type": "chat",
                 "output_type": "chat",
-                "session_id": str(uuid.uuid4()),
+                "session_id": sid,
                 "tweaks": tweaks,
             },
         )

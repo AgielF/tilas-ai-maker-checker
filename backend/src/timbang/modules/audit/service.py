@@ -34,6 +34,7 @@ from timbang.modules.audit.schemas import (
 )
 from timbang.shared.core.config import get_settings
 from timbang.shared.core.exceptions import UpstreamError, ValidationError
+from timbang.shared.langflow.flow_meta import build_tweaks
 from timbang.shared.parsers.excel import excel_to_csv_text
 from timbang.shared.parsers.pdf import (
     _extract_langflow_text,
@@ -168,6 +169,8 @@ class AuditService:
         if settings.langflow_api_key:
             headers["x-api-key"] = settings.langflow_api_key
 
+        sid, tweaks = build_tweaks("risk_narrator.json")
+
         try:
             async with httpx.AsyncClient(timeout=settings.langflow_timeout_seconds) as client:
                 response = await client.post(
@@ -177,6 +180,8 @@ class AuditService:
                         "input_value": context,
                         "input_type": "chat",
                         "output_type": "chat",
+                        "session_id": sid,
+                        "tweaks": tweaks,
                     },
                 )
             if response.status_code != 200:
@@ -299,17 +304,35 @@ class AuditService:
                 uploaded_paths[document_key] = file_path
 
             file_node_keys = _get_file_node_keys()
-            tweaks = {
-                file_node_keys[document_key]: {"file_path": file_path}
+            fallback_path = next(iter(uploaded_paths.values()))
+            file_paths_for_tweaks = {
+                file_node_keys[document_key]: file_path
                 for document_key, file_path in uploaded_paths.items()
             }
+            missing_slots = [k for k in file_node_keys if k not in uploaded_paths]
+            for slot in missing_slots:
+                file_paths_for_tweaks[file_node_keys[slot]] = fallback_path
+
+            input_value = "Ekstrak semua dokumen pengadaan"
+            if missing_slots:
+                input_value += (
+                    " Dokumen berikut TIDAK disediakan oleh user: "
+                    + ", ".join(missing_slots)
+                    + ". Isi field terkait dengan null/kosong, jangan halusinasi."
+                )
+
+            sid, tweaks = build_tweaks(
+                "checker_agent.json",
+                input_value=input_value,
+                file_paths=file_paths_for_tweaks,
+            )
             run_response = await client.post(
                 f"{settings.langflow_base_url}/api/v1/run/{flow_id}",
                 headers={**headers, "Content-Type": "application/json"},
                 json={
-                    "input_value": "Ekstrak semua dokumen pengadaan",
                     "input_type": "chat",
                     "output_type": "chat",
+                    "session_id": sid,
                     "tweaks": tweaks,
                 },
             )
