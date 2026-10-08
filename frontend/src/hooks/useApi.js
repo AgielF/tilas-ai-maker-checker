@@ -121,7 +121,7 @@ export function useMakerRecommendation() {
   const [loading, setLoading] = useState(false)
   const abortRef = useRef(null)
 
-  const submit = useCallback(async (itemName, file) => {
+  const submit = useCallback(async (itemName, file, mode = 'penawaran') => {
     abortRef.current?.abort()
     const controller = new AbortController()
     abortRef.current = controller
@@ -135,6 +135,7 @@ export function useMakerRecommendation() {
     try {
       const form = new FormData()
       form.append('item_name', itemName)
+      form.append('mode', mode)
       form.append('file', file)
 
       let res

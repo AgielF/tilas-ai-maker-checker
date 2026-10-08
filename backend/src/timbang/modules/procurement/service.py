@@ -101,7 +101,7 @@ def _extract_chat_text(data: dict) -> str:
 
 
 def _try_parse_json(text: str) -> dict | None:
-    """Try to parse text as JSON. Strips markdown fences if present.
+    """Try to parse text as JSON. Handles fenced blocks and JSON embedded in narration.
 
     Returns the parsed dict, or None if parsing fails in all attempts.
     """
@@ -118,6 +118,19 @@ def _try_parse_json(text: str) -> dict | None:
     if match:
         try:
             parsed = json.loads(match.group(1))
+            if isinstance(parsed, dict):
+                return parsed
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    # Attempt 3: extract the outermost {...} substring. Handles LLM output
+    # that wraps valid JSON in narration, or that includes trailing text.
+    first = text.find("{")
+    last = text.rfind("}")
+    if first != -1 and last > first:
+        candidate = text[first : last + 1]
+        try:
+            parsed = json.loads(candidate)
             if isinstance(parsed, dict):
                 return parsed
         except (json.JSONDecodeError, ValueError):
@@ -472,6 +485,7 @@ class ProcurementService:
         self,
         item_name: str,
         file: UploadFile,
+        mode: str = "penawaran",
     ) -> RecommendationResponse:
         """Upload file (PDF or Excel) → Langflow Read File node → Maker Agent → Recommendation.
 
@@ -554,13 +568,32 @@ class ProcurementService:
                     file_path=file_path,
                 )
 
-                if item_name and item_name.strip():
-                    user_instruksi = f"Ekstrak dan analisis khusus item: {item_name.strip()}"
-                else:
-                    user_instruksi = (
-                        "Ekstrak dan analisis SEMUA item yang ada "
-                        "dalam dokumen penawaran vendor ini."
+                if mode == "bon":
+                    # BON Permintaan Barang — belum ada vendor, cari harga pasar saja.
+                    base = (
+                        "Dokumen ini adalah BON PERMINTAAN BARANG (belum ada vendor). "
+                        "Ekstrak SEMUA item dari BON ini dan cari harga pasar terkini. "
+                        "Set vendor_name=null dan harga_vendor=null untuk setiap item. "
+                        "Fokus pada: nama_item, qty, satuan, harga_pasar_rata, "
+                        "sumber URL, dan rekomendasi supplier harga terbaik."
                     )
+                    if item_name and item_name.strip():
+                        user_instruksi = (
+                            f"{base} Fokus khusus item: {item_name.strip()}."
+                        )
+                    else:
+                        user_instruksi = base
+                else:
+                    # Penawaran vendor — bandingkan harga vendor vs harga pasar.
+                    if item_name and item_name.strip():
+                        user_instruksi = (
+                            f"Ekstrak dan analisis khusus item: {item_name.strip()}"
+                        )
+                    else:
+                        user_instruksi = (
+                            "Ekstrak dan analisis SEMUA item yang ada "
+                            "dalam dokumen penawaran vendor ini."
+                        )
 
                 # 5. Run flow with file_path tweak + cache isolation
                 sid, tweaks = build_tweaks(

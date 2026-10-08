@@ -119,12 +119,19 @@ async def cross_validate_price(
 async def recommend_with_file(
     request: Request,
     item_name: str = Form(""),
+    mode: str = Form("penawaran"),
     file: UploadFile = File(...),
     service: ProcurementService = Depends(_build_service),
 ) -> RecommendationResponse:
-    """Upload PDF/DOCX + item_name → Maker Agent Langflow → Recommendation."""
+    """Upload PDF/Excel + mode → Maker Agent Langflow → Recommendation.
+
+    mode: "penawaran" (vendor quote, compare vendor vs market) or
+          "bon" (permintaan barang tanpa vendor, cari harga pasar saja).
+    """
     try:
-        return await service.get_recommendation_from_file(item_name=item_name, file=file)
+        return await service.get_recommendation_from_file(
+            item_name=item_name, file=file, mode=mode
+        )
     except DomainError as exc:
         raise _map_exception(exc) from exc
 
