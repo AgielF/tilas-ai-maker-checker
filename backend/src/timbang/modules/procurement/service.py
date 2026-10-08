@@ -61,6 +61,46 @@ _OUTLIER_THRESHOLD = Decimal("0.30")  # 30% deviation from median
 _MARKDOWN_FENCE_RE = re.compile(r"```(?:json)?\s*(.+?)\s*```", re.DOTALL)
 
 
+# Prompt override untuk mode BON. Template default flow di-tune untuk
+# dokumen penawaran vendor sehingga qty/satuan BON sering kosong.
+# Catatan: {{ dan }} di source ini akan menjadi { dan } literal setelah
+# f-string rendering oleh Langflow Prompt Template. Placeholder valid
+# hanya {chat-input} dan {file}.
+_MAKER_PROMPT_BON = """Kamu adalah asisten pengadaan. Tugasmu mengekstrak informasi dari BON PERMINTAAN BARANG berikut.
+
+BON Permintaan Barang = daftar item yang MAU DIBELI. Belum ada vendor, belum ada harga. Fokus ke nama item, qty, satuan, dan keterangan.
+
+Instruksi user: {chat-input}
+
+Isi Dokumen:
+{file}
+
+Ekstrak dalam format JSON:
+{{
+  "vendor_name": null,
+  "vendor_contact": null,
+  "vendor_address": null,
+  "items": [
+    {{
+      "nama_item": "nama item lengkap",
+      "qty": 195,
+      "satuan": "YARD",
+      "keterangan": "keterangan kalau ada",
+      "harga_vendor": null,
+      "total_price_vendor": null
+    }}
+  ],
+  "total_penawaran": null,
+  "terms": null
+}}
+
+ATURAN:
+1. WAJIB isi qty dan satuan dari dokumen. Contoh "195 YARD" menjadi qty=195, satuan="YARD".
+2. Ambil qty dari kolom ORDER TO PRC atau SAMPLE di dokumen.
+3. Jangan halusinasi. Kalau benar-benar tidak ada, qty=0 dan satuan="".
+4. Output HANYA JSON murni. Tidak ada teks pembuka atau penutup."""
+
+
 # ── Langflow helpers ──────────────────────────────────────────────────────────
 
 
@@ -600,6 +640,13 @@ class ProcurementService:
                     "maker_agent.json",
                     file_paths={"File-bHzNP": file_path},
                 )
+                if mode == "bon":
+                    # Override Prompt Template-J026A karena template default
+                    # di-tune untuk dokumen penawaran vendor (mengosongkan
+                    # qty/satuan BON).
+                    tweaks["Prompt Template-J026A"] = {
+                        "template": _MAKER_PROMPT_BON,
+                    }
                 run_url = f"{settings.langflow_base_url}/api/v1/run/{flow_id}"
                 t0 = time.monotonic()
                 log.info(
