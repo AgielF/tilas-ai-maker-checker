@@ -15,8 +15,9 @@ import Icon from '../atoms/Icon';
  *   onCancel   {Function} called when Cancel is clicked during loading
  *   onRetry    {Function} called when Retry is clicked on error
  *   onValidate {Function} called when "Validate this price" is clicked
+ *   mode       {'penawaran'|'bon'} maker mode — affects result rendering
  */
-function RecommendationPanel({ state = 'idle', result, error, onCancel, onRetry, onValidate }) {
+function RecommendationPanel({ state = 'idle', result, error, onCancel, onRetry, onValidate, mode = 'penawaran' }) {
   if (state === 'loading') {
     return (
       <section className="border border-[var(--border-light)]">
@@ -47,7 +48,7 @@ function RecommendationPanel({ state = 'idle', result, error, onCancel, onRetry,
 
   if (state === 'success' && result) {
     return (
-      <RecommendationCard result={result} onValidate={onValidate} />
+      <RecommendationCard result={result} onValidate={onValidate} mode={mode} />
     );
   }
 

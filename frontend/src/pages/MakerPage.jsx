@@ -179,6 +179,7 @@ export default function MakerPage() {
           onCancel={() => { }}
           onRetry={handleRetry}
           onValidate={handleValidate}
+          mode={mode}
         />
       }
     />

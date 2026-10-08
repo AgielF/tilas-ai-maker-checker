@@ -87,7 +87,48 @@ function MathCheckBanner({ kesimpulan }) {
 }
 
 /** 2-column hero stats row */
-function HeroStats({ kesimpulan }) {
+function HeroStats({ kesimpulan, items = [], mode = 'penawaran' }) {
+  // BON mode: no vendor, no price — show item inventory stats instead.
+  if (mode === 'bon') {
+    const totalItems = items.length;
+    const withoutMarket = items.filter((it) => it.harga_pasar_rata == null).length;
+    const withMarket = totalItems - withoutMarket;
+
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="flex flex-col gap-0.5 border border-[var(--border-dark)] p-4">
+          <span className="text-xs text-[var(--color-text-inv-mute)] uppercase tracking-wider">
+            Total Item
+          </span>
+          <span className="font-mono tabular-nums text-2xl font-bold text-[var(--color-text-inv)]">
+            {totalItems}
+          </span>
+        </div>
+        <div className="flex flex-col gap-0.5 border border-[var(--border-dark)] p-4">
+          <span className="text-xs text-[var(--color-text-inv-mute)] uppercase tracking-wider">
+            Sudah Ada Harga Pasar
+          </span>
+          <span className="font-mono tabular-nums text-2xl font-bold text-emerald">
+            {withMarket}
+          </span>
+        </div>
+        <div className="flex flex-col gap-0.5 border border-[var(--border-dark)] p-4">
+          <span className="text-xs text-[var(--color-text-inv-mute)] uppercase tracking-wider">
+            Belum Ada Harga Pasar
+          </span>
+          <span
+            className={`font-mono tabular-nums text-2xl font-bold ${
+              withoutMarket > 0 ? 'text-warning' : 'text-emerald'
+            }`}
+          >
+            {withoutMarket}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Penawaran mode: original behavior
   if (!kesimpulan) return null;
 
   const totalFormatted = fmtIDR(kesimpulan.total_penawaran);
@@ -318,7 +359,7 @@ function SumberNotice({ items }) {
  *   result     {Object}    RecommendationResponse from /recommend-with-file
  *   onValidate {Function}  called when "Validate this price" is clicked
  */
-function RecommendationCard({ result = {}, onValidate }) {
+function RecommendationCard({ result = {}, onValidate, mode = 'penawaran' }) {
   const vendorName        = result.vendor_name;
   const vendorContact     = result.vendor_contact;
   const vendorAddress     = result.vendor_address;
@@ -333,15 +374,23 @@ function RecommendationCard({ result = {}, onValidate }) {
       {/* ── 1. HEADER ────────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-2">
         <span className="text-xs text-[var(--color-text-inv-mute)] uppercase tracking-wider">
-          Harga yang Direkomendasikan
+          {mode === 'bon' ? 'Rekomendasi BON Permintaan' : 'Harga yang Direkomendasikan'}
         </span>
         <div className="flex flex-col gap-1">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <h2 className="text-2xl font-semibold text-[var(--color-text-inv)] leading-tight">
-              {isAvailable(vendorName) ? vendorName : '—'}
+              {mode === 'bon'
+                ? 'Belum Ada Vendor'
+                : (isAvailable(vendorName) ? vendorName : '—')}
             </h2>
-            {isAvailable(rekomendasiVendor) && (
-              <RekomendasiBadge value={rekomendasiVendor} />
+            {mode === 'bon' ? (
+              <span className="px-3 py-1 text-xs uppercase tracking-wider border border-electric text-electric">
+                Cari Supplier
+              </span>
+            ) : (
+              isAvailable(rekomendasiVendor) && (
+                <RekomendasiBadge value={rekomendasiVendor} />
+              )
             )}
           </div>
           {(isAvailable(vendorContact) || isAvailable(vendorAddress)) && (
@@ -367,7 +416,7 @@ function RecommendationCard({ result = {}, onValidate }) {
       <MathCheckBanner kesimpulan={kesimpulan} />
 
       {/* ── 3. HERO STATS ────────────────────────────────────────────────── */}
-      <HeroStats kesimpulan={kesimpulan} />
+      <HeroStats kesimpulan={kesimpulan} items={items} mode={mode} />
 
       {/* ── 3. TABLE ITEMS ───────────────────────────────────────────────── */}
       <div className="flex flex-col gap-2">
@@ -391,7 +440,7 @@ function RecommendationCard({ result = {}, onValidate }) {
       )}
 
       {/* ── 6. ACTIONS ───────────────────────────────────────────────────── */}
-      {onValidate && (
+      {onValidate && mode !== 'bon' && (
         <div className="flex justify-start border-t border-[var(--border-dark)] pt-4">
           <Button variant="primary" size="sm" onClick={onValidate}>
             Validate this price
