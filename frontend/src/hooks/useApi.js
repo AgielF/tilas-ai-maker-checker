@@ -126,7 +126,7 @@ export function useMakerRecommendation() {
     const controller = new AbortController()
     abortRef.current = controller
 
-    const timeoutId = setTimeout(() => controller.abort(), 120_000)
+    const timeoutId = setTimeout(() => controller.abort(), 300_000)  // match Langflow backend timeout
 
     setLoading(true)
     setError(null)

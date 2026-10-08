@@ -138,7 +138,9 @@ export default function MakerPage() {
 {/* File upload */}
            <div className="flex flex-col gap-1">
              <span className="text-sm font-medium text-[var(--color-text-inv)]">
-               Dokumen Penawaran (PDF atau Excel)
+               {mode === 'bon'
+                 ? 'Dokumen BON Permintaan (PDF atau Excel)'
+                 : 'Dokumen Penawaran (PDF atau Excel)'}
              </span>
              <FileUploader
                file={file}
