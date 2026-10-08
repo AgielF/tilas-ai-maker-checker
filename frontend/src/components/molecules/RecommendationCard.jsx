@@ -191,7 +191,8 @@ function HeroStats({ kesimpulan, items = [], mode = 'penawaran' }) {
 }
 
 /** Horizontal-scroll items table */
-function ItemsTable({ items, kesimpulan }) {
+function ItemsTable({ items, kesimpulan, mode = 'penawaran' }) {
+  const isBon = mode === 'bon';
   if (!items || items.length === 0) {
     return (
       <div className="border border-[var(--border-dark)] flex flex-col items-center justify-center gap-2 py-10 px-6 text-center">
@@ -210,7 +211,15 @@ function ItemsTable({ items, kesimpulan }) {
       <table className="w-full text-sm min-w-[640px]">
         <thead>
           <tr className="border-b border-[var(--border-dark)] bg-surface">
-            {['Item', 'Qty', 'Harga Vendor', 'Total', 'Harga Pasar', 'Selisih', 'Status', 'Rekomendasi'].map((h) => (
+            {[
+              'Item',
+              'Qty',
+              ...(isBon ? [] : ['Harga Vendor', 'Total']),
+              isBon ? 'Harga Pasar / Satuan' : 'Harga Pasar',
+              ...(isBon ? ['Estimasi Total'] : []),
+              ...(isBon ? [] : ['Selisih', 'Status']),
+              'Rekomendasi',
+            ].map((h) => (
               <th
                 key={h}
                 className={[
@@ -268,39 +277,56 @@ function ItemsTable({ items, kesimpulan }) {
                   {isAvailable(item.qty) && isAvailable(item.satuan) ? `${item.qty} ${item.satuan}` : '—'}
                 </td>
 
-                {/* Harga vendor */}
-                <td className="px-4 py-3 text-right font-mono tabular-nums text-[var(--color-text-inv)]">
-                  {hargaVendor ?? '—'}
-                </td>
+                {!isBon && (
+                  <>
+                    {/* Harga vendor */}
+                    <td className="px-4 py-3 text-right font-mono tabular-nums text-[var(--color-text-inv)]">
+                      {hargaVendor ?? '—'}
+                    </td>
 
-                {/* Total */}
-                <td className="hidden md:table-cell px-4 py-3 text-right font-mono tabular-nums text-[var(--color-text-inv)]">
-                  {fmtIDR(item.total_price_vendor) ?? '—'}
-                </td>
+                    {/* Total */}
+                    <td className="hidden md:table-cell px-4 py-3 text-right font-mono tabular-nums text-[var(--color-text-inv)]">
+                      {fmtIDR(item.total_price_vendor) ?? '—'}
+                    </td>
+                  </>
+                )}
 
                 {/* Harga pasar */}
                 <td className="px-4 py-3 text-right font-mono tabular-nums text-[var(--color-text-inv-mute)]">
                   {hargaPasar ? hargaPasar : <span className="italic">—</span>}
                 </td>
 
-                {/* Selisih */}
-                <td
-                  className={[
-                    'px-4 py-3 text-right font-mono tabular-nums text-sm',
-                    selisihNum === null
-                      ? 'text-[var(--color-text-inv-mute)]'
-                      : selisihNum > 0
-                      ? 'text-sev-high'
-                      : 'text-emerald',
-                  ].join(' ')}
-                >
-                  {selisih ?? '—'}
-                </td>
+                {/* Estimasi total (BON only) */}
+                {isBon && (
+                  <td className="px-4 py-3 text-right font-mono tabular-nums text-[var(--color-text-inv)]">
+                    {typeof item.qty === 'number' && item.qty > 0 && typeof item.harga_pasar_rata === 'number'
+                      ? fmtIDR(item.qty * item.harga_pasar_rata)
+                      : <span className="italic">—</span>}
+                  </td>
+                )}
 
-                {/* Status */}
-                <td className="px-4 py-3 text-center">
-                  <StatusBadge value={item.status} />
-                </td>
+                {!isBon && (
+                  <>
+                    {/* Selisih */}
+                    <td
+                      className={[
+                        'px-4 py-3 text-right font-mono tabular-nums text-sm',
+                        selisihNum === null
+                          ? 'text-[var(--color-text-inv-mute)]'
+                          : selisihNum > 0
+                          ? 'text-sev-high'
+                          : 'text-emerald',
+                      ].join(' ')}
+                    >
+                      {selisih ?? '—'}
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-4 py-3 text-center">
+                      <StatusBadge value={item.status} />
+                    </td>
+                  </>
+                )}
 
                 {/* Rekomendasi */}
                 <td className="px-4 py-3 text-center">
@@ -311,19 +337,47 @@ function ItemsTable({ items, kesimpulan }) {
           })}
         </tbody>
         <tfoot className="border-t-2 border-[var(--border-dark)] bg-surface">
-          <tr>
-            <td colSpan={1} className="px-4 py-3 text-right font-bold text-[var(--color-text-inv)] md:hidden">
-              TOTAL
-            </td>
-            <td colSpan={3} className="hidden md:table-cell px-4 py-3 text-right font-bold text-[var(--color-text-inv)]">
-              TOTAL
-            </td>
-            <td className="px-4 py-3 text-right font-mono tabular-nums font-bold text-[var(--color-text-inv)]">
-              {fmtIDR(kesimpulan?.total_penawaran) ?? '—'}
-            </td>
-            <td colSpan={4} className="hidden md:table-cell px-4 py-3"></td>
-            <td colSpan={3} className="md:hidden px-4 py-3"></td>
-          </tr>
+          {isBon ? (
+            (() => {
+              const priced = items.filter(
+                (it) => typeof it.qty === 'number' && it.qty > 0 && typeof it.harga_pasar_rata === 'number',
+              );
+              const totalEstimasi = priced.reduce(
+                (sum, it) => sum + it.qty * it.harga_pasar_rata, 0,
+              );
+              return (
+                <>
+                  <tr>
+                    <td colSpan={4} className="px-4 py-3 text-right font-bold text-[var(--color-text-inv)]">
+                      Total Estimasi Pengadaan
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono tabular-nums font-bold text-[var(--color-text-inv)]">
+                      {fmtIDR(totalEstimasi) ?? '—'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colSpan={5} className="px-4 py-2 text-right italic text-xs text-[var(--color-text-inv-mute)]">
+                      Berdasarkan {priced.length} dari {items.length} item yang punya harga pasar
+                    </td>
+                  </tr>
+                </>
+              );
+            })()
+          ) : (
+            <tr>
+              <td colSpan={1} className="px-4 py-3 text-right font-bold text-[var(--color-text-inv)] md:hidden">
+                TOTAL
+              </td>
+              <td colSpan={3} className="hidden md:table-cell px-4 py-3 text-right font-bold text-[var(--color-text-inv)]">
+                TOTAL
+              </td>
+              <td className="px-4 py-3 text-right font-mono tabular-nums font-bold text-[var(--color-text-inv)]">
+                {fmtIDR(kesimpulan?.total_penawaran) ?? '—'}
+              </td>
+              <td colSpan={4} className="hidden md:table-cell px-4 py-3"></td>
+              <td colSpan={3} className="md:hidden px-4 py-3"></td>
+            </tr>
+          )}
         </tfoot>
       </table>
     </div>
@@ -423,7 +477,7 @@ function RecommendationCard({ result = {}, onValidate, mode = 'penawaran' }) {
         <span className="text-xs text-[var(--color-text-inv-mute)] uppercase tracking-wider">
           Detail Item
         </span>
-        <ItemsTable items={items} kesimpulan={kesimpulan} />
+        <ItemsTable items={items} kesimpulan={kesimpulan} mode={mode} />
         <SumberNotice items={items} />
       </div>
 
