@@ -52,8 +52,11 @@ Tim purchasing mengelola quote vendor, PO, goods receipt, dan invoice lewat spre
 
 Tilas mengotomasi kerja auditor pengadaan **sebelum pembayaran disetujui**, dengan keputusan akhir tetap di manusia.
 
-- **Maker Agent** — analisis penawaran + cross-validate harga pasar (Serper / marketplace)
-- **Checker Agent** — 4-way matching (PO / GR / Invoice / Faktur Pajak) + SOP + citation guard
+- **Maker Agent** — dua mode yang bisa dipilih user di UI:
+  - **Mode Penawaran** — analisis penawaran vendor + cross-validate harga pasar (Serper / marketplace)
+  - **Mode BON** — BON Permintaan Barang (belum ada vendor) → cari harga pasar + estimasi total pengadaan
+  - Input **PDF atau Excel**, prompt LLM disesuaikan per mode via runtime override (tanpa re-import flow)
+- **Checker Agent** — 4-way matching (PO / GR / Invoice / Faktur Pajak) + SOP + faktur pajak + split PO + duplikat invoice + citation guard
 - **Human-in-the-loop** — keputusan akhir di staf purchasing, bukan auto-approve
 
 ---
@@ -130,21 +133,37 @@ Detail interaksi backend ↔ Langflow ↔ LLM per modul.
 
 ### Maker Agent (`/maker`)
 
-Modul `procurement` — rekomendasi vendor dari PDF penawaran.
+Modul `procurement` — rekomendasi harga dari PDF **atau** Excel.
 
-- Upload PDF, ekstraksi otomatis via Langflow (`POST /items/recommend-with-file`)
-- **Fokus item opsional** — kosongkan untuk *general scan* seluruh dokumen
-- Cross-validate harga via Serper API (di flow Langflow)
-- Sitasi URL per item (Tokopedia, Shopee, Lazada, dll.)
+Dua mode dipilih lewat toggle di UI:
+
+**Mode Penawaran** — dokumen penawaran vendor (vendor sudah ada):
+- Ekstraksi vendor + item + harga via Langflow (`POST /items/recommend-with-file`)
+- Cross-validate harga via Serper API (Tokopedia, Shopee, Lazada, dll.)
+- Sitasi URL per item
 - Skor vendor 0–100 (`kesimpulan.skor_vendor`)
-- Math check deterministik: `OK` / `WARNING` / `CRITICAL` jika total item ≠ total penawaran
+- Selisih % + status per item (`WAJAR` / `KOMPETITIF` / `PERHATIAN` / `TIDAK WAJAR`)
+- Math check deterministik: `OK` / `WARNING` / `CRITICAL`
+
+**Mode BON** — BON Permintaan Barang (belum ada vendor):
+- Ekstraksi item + qty + satuan dari BON
+- Cari harga pasar per item
+- **Estimasi total pengadaan** dari `qty × harga_pasar_rata`
+- `vendor_name: null`, `harga_vendor: null` (memang belum ada vendor)
+
+**Fitur umum:**
+- Input **PDF dan Excel** (`.xlsx`, `.xls`) — Excel dikonversi ke CSV di backend
+- **Fokus item opsional** — kosongkan untuk *general scan* seluruh dokumen
+- **Dynamic prompt override** — prompt LLM berbeda per mode, di-inject via tweaks tanpa re-import flow
+- **Cache isolation** — `session_id` unik + `should_store_message=False` per request
 - Endpoint legacy: `GET /items/{item_name}/recommend` (tanpa file)
 
 ### Checker Agent (`/checker`)
 
 Modul `audit` — matching dokumen + laporan risiko.
 
-- Upload 4 PDF (PO, GR, Invoice, FP) → `POST /transactions/{tx_id}/risk-report-with-files`
+- Upload PDF **atau Excel** — PO, GR, Invoice, Faktur Pajak → `POST /transactions/{tx_id}/risk-report-with-files`
+- `tax_invoice_file` opsional — kalau tidak di-upload, File node diisi fallback agar flow tetap build
 - Tab UI: **Upload PDF** | **Input Manual**
 - 4-way matching (qty ±2%, amount ±1%)
 - SOP validation (threshold L2 100 juta IDR)
@@ -569,7 +588,7 @@ Rate limit per IP (slowapi). Endpoint LLM lebih ketat (`10/min` / `5/min`). Kont
 cd backend && pytest -q
 ```
 
-**Backend: pytest (72+ tests)** — service Maker/Checker, citation guard, SOP, faktur pajak, file upload, Langflow mock, E2E HTTP, rate limit.
+**Backend: pytest (86 tests collected)** — service Maker/Checker, citation guard, SOP, faktur pajak, file upload, Langflow mock, E2E HTTP, rate limit. Sebagian test lama masih mengasumsikan struktur tweaks awal (2 test env-dependent, 2 test outdated) — lihat `pytest -q` untuk status terbaru.
 
 ```bash
 pytest --cov=timbang --cov-report=term-missing -q
@@ -595,8 +614,11 @@ Lint backend: `ruff check . && black --check .` (dari `backend/`). Sanitasi: `./
 2. **Deterministic + LLM** — auditable (aturan tetap) + narasi kaya (Layer 3)
 3. **Citation guard** — temuan tanpa bukti tidak pernah masuk laporan
 4. **Layer 3 narrative** — summary eksekutif tanpa mengubah verdict engine
-5. **Multi-LLM gateway (9Router)** — Gemini / Groq / Cerebras tanpa lock-in satu provider
-6. **Auditable + replayable (AuditChain)** — findings & check results tersimpan, bisa diulang dengan input yang sama
+5. **Mode-aware Maker** — satu flow, dua strategi. Input BON vs Penawaran dibedakan user via toggle, prompt LLM di-override runtime
+6. **Dynamic prompt override** — prompt BON dan Penawaran diinject via tweaks API (tanpa edit JSON flow / re-import Playground). Timpa field `template` di Prompt Template node langsung dari backend
+7. **Cache isolation per request** — `session_id` unik + `should_store_message=False` via tweaks. Wajib untuk multi-user / demo yang submit file berurutan
+8. **Multi-LLM gateway (9Router)** — Gemini / Groq / Cerebras tanpa lock-in satu provider
+9. **Auditable + replayable (AuditChain)** — findings & check results tersimpan, bisa diulang dengan input yang sama
 
 ---
 
@@ -631,14 +653,21 @@ Modular monolith — bukan microservices. Konfigurasi 12-Factor (semua lewat env
 
 - Maker + Checker + Layer 3 + arsitektur hybrid 3-layer
 - UI Maker (`/maker`) dan Checker (upload + manual)
+- **Maker mode toggle** — Penawaran Vendor vs BON Permintaan (UI + backend + prompt override)
+- **Excel support** (`.xlsx`, `.xls`) di Maker dan Checker
+- **Dynamic prompt override** via runtime tweaks (tanpa re-import flow)
+- **Cache isolation per request** — session_id unik + `should_store_message=False`
 - Citation guard, SOP L2, validasi faktur pajak, 6 fraud labels
 - **Split PO detection** — 2+ PO kecil 7 hari, vendor sama, total > 100jt → finding SPLIT_PO (HIGH)
 - **Duplicate invoice detection** — reference sama persis (CRITICAL) atau amount sama + vendor sama 3 hari (HIGH)
-- 72+ backend tests
+- Math check dengan PPN-awareness — selisih 9-13% ditandai INFO (kemungkinan PPN), bukan CRITICAL
+- 86 backend tests collected
 
 ### Phase 2
 
-- Excel support (`.xlsx`)
+- BPB dan Nota toko parser (extend 4-way → 6-way)
+- Stock record (BPB in / BPK out) + auto-check "check the shelf first"
+- Combine daily bons ke draft PO (Agent Penyusun end-to-end)
 - Astra DB vector store untuk SOP clause
 - PDF approval doc export
 - MCP Server + Bob Host
