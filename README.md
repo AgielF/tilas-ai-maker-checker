@@ -111,6 +111,21 @@ Diagram C4 dan ADR: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ---
 
+## System Flow
+
+Alur lengkap dari dokumen fisik sampai keputusan bayar, plus scope MVP yang sudah diimplementasikan Phase 1.
+
+- [Visi end-to-end](docs/diagrams/system-flow.md) — Bon → arsip → agent penyusun → agent pemeriksa
+
+## Sequence Diagram
+
+Detail interaksi backend ↔ Langflow ↔ LLM per modul.
+
+- [Maker Agent](docs/diagrams/sequence-maker.md) — mode Penawaran & BON
+- [Checker Agent](docs/diagrams/sequence-checker.md) — 4-way matching + risk report
+
+---
+
 ## Fitur
 
 ### Maker Agent (`/maker`)
