@@ -5,6 +5,7 @@ import NavBar from '../components/organisms/NavBar';
 import PageHeader from '../components/organisms/PageHeader';
 import RecommendationPanel from '../components/organisms/RecommendationPanel';
 import FileUploader from '../components/molecules/FileUploader';
+import MakerProcessFlow from '../components/molecules/MakerProcessFlow';
 import Button from '../components/atoms/Button';
 import { useMakerRecommendation } from '../hooks/useApi';
 
@@ -157,6 +158,9 @@ export default function MakerPage() {
                errorInvalidFormat="File harus berformat PDF atau Excel."
              />
            </div>
+
+          {/* Alur proses Maker — hanya tampil sebelum submit */}
+          {panelState === 'idle' && <MakerProcessFlow />}
 
           <div className="flex justify-end">
             <Button

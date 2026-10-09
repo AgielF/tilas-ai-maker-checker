@@ -7,6 +7,7 @@ import MatchGrid from '../components/organisms/MatchGrid';
 import CheckerInputForm from '../components/organisms/CheckerInputForm';
 import CheckerUploadPanel from '../components/organisms/CheckerUploadPanel';
 import TabSwitch from '../components/molecules/TabSwitch';
+import CheckerProcessFlow from '../components/molecules/CheckerProcessFlow';
 import Button from '../components/atoms/Button';
 import Icon from '../components/atoms/Icon';
 import { useMatchThreeWay, useRiskReportFromFiles } from '../hooks/useApi';
@@ -221,6 +222,9 @@ export default function CheckerPage() {
               />
             )}
           </div>
+
+          {/* Alur proses Checker — hanya tampil sebelum submit */}
+          {!loading && !data && <CheckerProcessFlow />}
         </div>
       }
       resultZone={

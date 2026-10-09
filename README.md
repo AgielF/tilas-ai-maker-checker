@@ -663,16 +663,63 @@ Modular monolith — bukan microservices. Konfigurasi 12-Factor (semua lewat env
 - Math check dengan PPN-awareness — selisih 9-13% ditandai INFO (kemungkinan PPN), bukan CRITICAL
 - 86 backend tests collected
 
-### Phase 2
+### Phase 2 — Roadmap Lengkap
 
-- BPB dan Nota toko parser (extend 4-way → 6-way)
-- Stock record (BPB in / BPK out) + auto-check "check the shelf first"
-- Combine daily bons ke draft PO (Agent Penyusun end-to-end)
-- Astra DB vector store untuk SOP clause
-- PDF approval doc export
-- MCP Server + Bob Host
-- Real-time monitoring (WebSocket)
-- Multi-tenant SaaS
+Empat kategori. Urutan eksekusi Sprint 1 → 4.
+
+#### 🔴 Kategori A — Security & Governance (Prioritas #1)
+
+**A1. Identity & Access Control**
+Login (email/password → SSO), JWT session, 4 role: `STAFF`, `DIRECTOR`, `FINANCE`, `AUDITOR`.
+*Menutup gap:* audit trail tidak bisa dipercaya tanpa identitas; `decided_by` bisa dipalsukan.
+
+**A2. Approval Gates (H1 + H2)**
+- **H1 Director** — approve/reject PO > Rp 100jt sebelum dikirim ke vendor
+- **H2 Finance** — pay/hold/reject setelah Checker kasih risk report
+- Setiap keputusan di `approval_decisions` (append-only) + snapshot risk score
+*Menutup gap:* approval PO hanya "deteksi" tidak ada workflow; release payment tidak terekam.
+
+**A3. Segregation of Duties (SoD)**
+Enforce: staff tidak boleh approve PO sendiri; Director ≠ Finance untuk tx yang sama.
+*Menutup gap:* satu orang bisa end-to-end approve tanpa cross-check.
+
+#### 🟠 Kategori B — Ekstensi Domain (Prioritas #2)
+
+**B1. BPB + Nota Toko Parser (4-way → 6-way match)**
+Baca BPB (Bukti Penerimaan Barang) + Nota toko. 6-way: Bon ↔ PO ↔ BPB ↔ Surat Jalan ↔ Invoice ↔ Nota.
+*Menutup gap:* pengadaan tanpa PO formal (belanja toko) belum ter-cover.
+
+**B2. Stock Record (BPB in / BPK out)**
+Arsip pergerakan stok + auto-check "403 yard sudah masuk 6 Okt, cek rak dulu".
+*Menutup gap:* pembelian berulang padahal stok masih ada.
+
+**B3. Combine Daily BON → Draft PO (Agent Penyusun)**
+Gabung BON harian dari divisi berbeda → group by item + supplier → 1 draft PO.
+*Menutup gap:* purchasing buat BON terpisah manual, tidak efisien.
+
+#### 🟡 Kategori C — Infrastruktur & Integrasi (Prioritas #3)
+
+**C1. Astra DB Vector Store untuk SOP**
+SOP clause sebagai vector embedding. LLM retrieve klausul relevan kontekstual.
+*Menutup gap:* SOP static di kode, update butuh deploy ulang.
+
+**C2. PDF Approval Doc Export**
+Generate PDF risk report + findings untuk meeting approval.
+*Menutup gap:* laporan tidak bisa dibawa keluar sistem.
+
+**C3. MCP Server + Bob Host**
+TILAS jadi MCP server. Integrasi Slack, email, ERP (SAP, Odoo).
+*Menutup gap:* sulit integrasi tools eksternal.
+
+**C4. Real-time Monitoring (WebSocket)**
+Push notification saat finding baru. Live dashboard "5 PENDING_L2, 3 CRITICAL".
+*Menutup gap:* user tidak tahu ada finding baru, fraud makin lama terdeteksi.
+
+#### 🔵 Kategori D — Skala (Prioritas #4)
+
+**D1. Multi-tenant SaaS**
+Satu instance handle multi-perusahaan. Isolasi data per tenant.
+*Menutup gap:* satu tenant per install, tidak scalable.
 
 ---
 
