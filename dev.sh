@@ -26,7 +26,7 @@ trap 'echo ""; echo ">>> Shutting down..."; pkill -9 -f "uvicorn timbang" 2>/dev
 echo ">>> Starting backend on :8000 (venv: $VENV)"
 (
     cd "$ROOT"
-    exec "$VENV/bin/python" -m uvicorn timbang.main:app --app-dir backend/src --port 8000
+    exec "$VENV/bin/python" -m uvicorn timbang.main:app --app-dir backend/src --host 0.0.0.0 --port 8000
 ) &
 
 sleep 3
